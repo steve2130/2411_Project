@@ -4,8 +4,6 @@ from src.db import get_connection
 class UserModel:
     """
     A class to interact with the users table in the database.
-
-    :class:`UserService` is recommended to use over this class.
     """
 
     def __init__(self):
@@ -19,23 +17,32 @@ class UserModel:
         """, {'username': username, 'avatar_url': avatar_url, 'password': password, 'is_admin': is_admin})
         self.connection.commit()
 
-    def get(self, id_: int):
+    def find(self, id_: int):
         cursor = self.connection.cursor()
         cursor.execute("SELECT * FROM users WHERE id = :id", {'id': id_})
         return cursor.fetchone()
 
-    def get_by_username(self, username: str):
+    def find_by_username(self, username: str):
         cursor = self.connection.cursor()
         cursor.execute("SELECT * FROM users WHERE username = :username", {'username': username})
         return cursor.fetchone()
 
-    def update(self, id_: int, username: str, avatar_url: str, password: str, is_admin: bool):
+    def update(self, id_: int, avatar_url: str = None, password: str = None, is_admin: bool = None):
         cursor = self.connection.cursor()
+
+        fields = []
+        if avatar_url is not None:
+            fields.append('avatar_url = :avatar_url')
+        if password is not None:
+            fields.append('password = :password')
+        if is_admin is not None:
+            fields.append('is_admin = :is_admin')
+
         cursor.execute("""
             UPDATE users
-            SET username = :username, avatar_url = :avatar_url, password = :password, is_admin = :is_admin
+            SET """ + ', '.join(fields) + """
             WHERE id = :id
-        """, {'id': id_, 'username': username, 'avatar_url': avatar_url, 'password': password, 'is_admin': is_admin})
+            """, {'id': id_, 'avatar_url': avatar_url, 'password': password, 'is_admin': is_admin})
         self.connection.commit()
 
     def delete(self, id_: int):
