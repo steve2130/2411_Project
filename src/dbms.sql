@@ -23,6 +23,8 @@ CREATE TABLE addresses
 (
     id      number(10) PRIMARY KEY,
     user_id number(10),
+    contact_name varchar2(255),
+    contact_phone varchar2(255),
     details clob
 );
 

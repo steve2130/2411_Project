@@ -9,12 +9,12 @@ class AddressRepository:
     def __init__(self):
         self.connection = get_connection()
 
-    def create(self, user_id: int, details: str):
+    def create(self, user_id: int, contact_name: str, contact_phone: str, details: str):
         cursor = self.connection.cursor()
         cursor.execute("""
-            INSERT INTO addresses (user_id, details)
-            VALUES (:user_id, :details)
-        """, {'user_id': user_id, 'details': details})
+            INSERT INTO addresses (user_id, contact_name, contact_phone, details)
+            VALUES (:user_id, :contact_name, :contact_phone, :details)
+        """, user_id=user_id, contact_name=contact_name, contact_phone=contact_phone, details=details)
         self.connection.commit()
 
     def find(self, id_: int):
@@ -24,16 +24,16 @@ class AddressRepository:
 
     def get_by_user_id(self, user_id: int):
         cursor = self.connection.cursor()
-        cursor.execute("SELECT * FROM addresses WHERE user_id = :user_id", {'user_id': user_id})
+        cursor.execute("SELECT * FROM addresses WHERE user_id = :user_id", user_id=user_id)
         return cursor.fetchall()
 
-    def update(self, id_: int, details: str):
+    def update(self, id_: int, contact_name: str, contact_phone: str, details: str):
         cursor = self.connection.cursor()
         cursor.execute("""
             UPDATE addresses
-            SET details = :details
+            SET contact_name = :contact_name, contact_phone = :contact_phone, details = :details
             WHERE id = :id
-        """, {'id': id_, 'details': details})
+        """, id=id_, contact_name=contact_name, contact_phone=contact_phone, details=details)
         self.connection.commit()
 
     def delete(self, id_: int):
