@@ -1,7 +1,7 @@
 from src.db import get_connection
 
 
-class UserModel:
+class UserRepository:
     """
     A class to interact with the users table in the database.
     """

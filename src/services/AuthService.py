@@ -1,11 +1,11 @@
 import bcrypt
 
-from src.models.User import UserModel
+from src.repositories.User import UserRepository
 
 
 class AuthService:
     def __init__(self):
-        self.user_model = UserModel()
+        self.user_repo = UserRepository()
 
     def register(self, username: str, password: str):
         """
@@ -15,14 +15,14 @@ class AuthService:
         :return: the newly created user
         """
 
-        self.user_model.create(
+        self.user_repo.create(
             username=username,
             password=self.__hash_password(password),
             avatar_url="https://placehold.co/500x500",
             is_admin=False,
         )
 
-        return self.user_model.find_by_username(username)
+        return self.user_repo.find_by_username(username)
 
     def authenticate(self, username: str, password: str):
         """
@@ -32,7 +32,7 @@ class AuthService:
         :return: the user if the authentication was successful, None otherwise
         """
 
-        user = self.user_model.find_by_username(username)
+        user = self.user_repo.find_by_username(username)
 
         if user is None:
             return None
@@ -53,7 +53,7 @@ class AuthService:
         :return: True if the password was changed, False otherwise
         """
 
-        user = self.user_model.find(user_id)
+        user = self.user_repo.find(user_id)
 
         if user is None:
             return False
@@ -61,7 +61,7 @@ class AuthService:
         if not self.__check_password(old_password, user.password):
             return False
 
-        self.user_model.update(
+        self.user_repo.update(
             user_id,
             {'password': self.__hash_password(new_password)}
         )

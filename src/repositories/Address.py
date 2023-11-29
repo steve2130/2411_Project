@@ -1,7 +1,7 @@
 from src.db import get_connection
 
 
-class AddressModel:
+class AddressRepository:
     """
     A class to interact with the addresses table in the database.
     """
