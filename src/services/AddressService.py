@@ -1,11 +1,12 @@
-from src.repositories.Address import AddressRepository
+from src.models import Address
+from src.repositories.AddressRepo import AddressRepository
 
 
 class AddressService:
     def __init__(self):
         self.address_repo = AddressRepository()
 
-    def get_user_addresses(self, user_id: int):
+    def get_user_addresses(self, user_id: int) -> list[Address]:
         return self.address_repo.get_by_user_id(user_id)
 
     def add_address_to_user(self, user_id: int, address_details: str):

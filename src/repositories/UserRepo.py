@@ -1,4 +1,5 @@
 from src.db import get_connection
+from src.models import User
 
 
 class UserRepository:
@@ -17,12 +18,12 @@ class UserRepository:
         """, username=username, avatar_url=avatar_url, password=password, is_admin=is_admin)
         self.connection.commit()
 
-    def find(self, id_: int):
+    def find(self, id_: int) -> User or None:
         cursor = self.connection.cursor()
         cursor.execute("SELECT * FROM users WHERE id = :id", {'id': id_})
         return cursor.fetchone()
 
-    def find_by_username(self, username: str):
+    def find_by_username(self, username: str) -> User or None:
         cursor = self.connection.cursor()
         cursor.execute("SELECT * FROM users WHERE username = :username", {'username': username})
         return cursor.fetchone()

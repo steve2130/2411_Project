@@ -1,6 +1,7 @@
 import bcrypt
 
-from src.repositories.User import UserRepository
+from src.models import User
+from src.repositories.UserRepo import UserRepository
 
 
 class AuthService:
@@ -24,7 +25,7 @@ class AuthService:
 
         return self.user_repo.find_by_username(username)
 
-    def authenticate(self, username: str, password: str):
+    def authenticate(self, username: str, password: str) -> User or None:
         """
         Authenticate a user by credentials.
         :param username: the username used to log in
