@@ -11,7 +11,7 @@ DROP TABLE order_items;
 
 CREATE TABLE users (
   id number(10) PRIMARY KEY,
-  name varchar2(255),
+  username varchar2(255),
   avatar_url varchar2(255),
   password varchar2(255),
   is_admin char(1)
