@@ -3,7 +3,7 @@ import bcrypt
 from src.models.User import UserModel
 
 
-class UserService:
+class AuthService:
     def __init__(self):
         self.user_model = UserModel()
 
@@ -62,8 +62,8 @@ class UserService:
             return False
 
         self.user_model.update(
-            id_=user_id,
-            password=self.__hash_password(new_password)
+            user_id,
+            {'password': self.__hash_password(new_password)}
         )
 
         return True

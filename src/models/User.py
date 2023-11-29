@@ -14,7 +14,7 @@ class UserModel:
         cursor.execute("""
             INSERT INTO users (username, avatar_url, password, is_admin)
             VALUES (:username, :avatar_url, :password, :is_admin)
-        """, {'username': username, 'avatar_url': avatar_url, 'password': password, 'is_admin': is_admin})
+        """, username=username, avatar_url=avatar_url, password=password, is_admin=is_admin)
         self.connection.commit()
 
     def find(self, id_: int):
@@ -27,22 +27,23 @@ class UserModel:
         cursor.execute("SELECT * FROM users WHERE username = :username", {'username': username})
         return cursor.fetchone()
 
-    def update(self, id_: int, avatar_url: str = None, password: str = None, is_admin: bool = None):
+    def update(self, id_: int, data: dict):
         cursor = self.connection.cursor()
 
         fields = []
-        if avatar_url is not None:
+        if 'avatar_url' in data:
             fields.append('avatar_url = :avatar_url')
-        if password is not None:
+        if 'password' in data:
             fields.append('password = :password')
-        if is_admin is not None:
+        if 'is_admin' in data:
             fields.append('is_admin = :is_admin')
 
+        data['id'] = id_
         cursor.execute("""
             UPDATE users
             SET """ + ', '.join(fields) + """
             WHERE id = :id
-            """, {'id': id_, 'avatar_url': avatar_url, 'password': password, 'is_admin': is_admin})
+            """, data)
         self.connection.commit()
 
     def delete(self, id_: int):
