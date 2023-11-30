@@ -10,7 +10,7 @@ def main():
     connection, cursor = db.connect_to_DB()
     # cursor =  stuff[1]
     a = ProductRepository(connection, cursor)
-    a.UpdateRecord(501, 0, "TEST", "???", "null", 499)
+    a.DeleteRecord("ID", 501)
     a.Commit()
 
 if __name__ == "__main__":
