@@ -1,5 +1,5 @@
-from src.db import get_connection
-from src.models import ProductSKUs
+from db import get_connection
+from models import ProductSKUs
 
 # Table name = PRODUCT_SKUS
 

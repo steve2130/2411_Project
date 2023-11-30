@@ -1,11 +1,11 @@
-from src.db import get_connection
-from src.models import Products
+#from db import get_connection
+from models.Products import ProductModel
 
 class ProductRepository:
 
-    def __init__(self):
-        self.connection = get_connection()
-        self.cursor = self.connection.cursor()
+    def __init__(self, connection, cursor):
+        self.connection = connection
+        self.cursor = cursor
 
 
     def Commit(self):
@@ -15,7 +15,7 @@ class ProductRepository:
         self.connection.commit()
 
 
-    def AddRecord(self, entity=Products):
+    def AddRecord(self, ID: int, CATEGORY_ID: int, TITLE: str, DESCRIPTION: str, IMAGE_URL: str, PRICE: float):
         """
         Add one record to Prodcuts
 
@@ -25,10 +25,10 @@ class ProductRepository:
         self.cursor.execute("""
                             INSERT INTO Products (ID, CATEGORY_ID, TITLE, DESCRIPTION, IMAGE_URL, PRICE)
                             VALUES (:ID, :CATEGORY_ID, :TITLE, :DESCRIPTION, :IMAGE_URL, :PRICE)
-                            """, entity.to_db)
+                            """, ID=ID, CATEGORY_ID=CATEGORY_ID, TITLE=TITLE, DESCRIPTION=DESCRIPTION, IMAGE_URL=IMAGE_URL, PRICE=PRICE)
         
 
-    def GetRecord(self, column, query):
+    def GetRecord(self, column: str, query: str):
         """
         Get one/many record(s) based on the query given (e.g. PRICE > 10)
 
@@ -39,10 +39,17 @@ class ProductRepository:
         Output:
             List of filtered search result
         """
-        self.cursor.execute("""
-                            SELECT :column FROM PRODUCTS
-                            WHERE :query
-                            """, column=column, query=query)
+
+        # For some unknown reason, you can't use bind variables like this:
+
+        # self.cursor.execute("""
+        #                     SELECT :column FROM PRODUCTS WHERE :query
+        #                     """, column=column, query=query)
+
+
+        search = f"SELECT {str(column)} FROM PRODUCTS WHERE {str(query)}"
+
+        self.cursor.execute(search)
         results =  self.cursor.fetchall()
         return [result for result in results]
 
@@ -62,12 +69,13 @@ class ProductRepository:
                             """, column=column, query=query)
 
 
-    def UpdateRecord(self, entity: Products) -> None:
+    def UpdateRecord(self,  ID: int, CATEGORY_ID: int, TITLE: str, DESCRIPTION: str, IMAGE_URL: str, PRICE: float) -> None:
         """
         Update a record (searched with ID) with the changed attribute (change with setter in Product.py)
+        ID: int, CATEGORY_ID: int, TITLE: str, DESCRIPTION: str, IMAGE_URL: str, PRICE: float,
         """
         self.cursor.execute("""
                             UPDATE PRODUCTS
                             SET :CATEGORY_ID, :TITLE, :DESCRIPTION, :IMAGE_URL, :PRICE
                             WHERE :ID
-                            """, CATEGORY_ID=entity.CATEGORY_ID, TITLE=entity.TITLE, DESCRIPTION=entity.DESCRIPTION, IMAGE_URL=entity.IMAGE_URL, PRICE=entity.PRICE, ID=entity.ID)
+                            """, CATEGORY_ID=CATEGORY_ID, TITLE=TITLE, DESCRIPTION=DESCRIPTION, IMAGE_URL=IMAGE_URL, PRICE=PRICE, ID=ID)

@@ -73,4 +73,4 @@ class ProductModel(object):
     # Database method
     @property
     def to_db(self) -> dict:
-        return {"ID": self.__ID, "CATEGORY_ID": self.__CATEGORY_ID, "TITLE": self.__TITLE, "DESCRIPTION": self.__DESCRIPTION, "IMAGE_URL": self.__IMAGE_URL, "PRICE": self.__PRICE}
+        return {"ID": self.ID, "CATEGORY_ID": self.CATEGORY_ID, "TITLE": self.TITLE, "DESCRIPTION": self.DESCRIPTION, "IMAGE_URL": self.IMAGE_URL, "PRICE": self.PRICE}
