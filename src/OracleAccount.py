@@ -1,4 +1,5 @@
 # Hello
 # Still better than a broken door
-Oracle_Database_Account_Username = str("\"22083184d\"")
-Oracle_Database_Account_Password = str("cqpncltc")
+import base64
+Oracle_Database_Account_Username = str(base64.b64decode("IjIyMDgzMTg0ZCI="))
+Oracle_Database_Account_Password = str(base64.b64decode("Y3FwbmNsdGM="))
