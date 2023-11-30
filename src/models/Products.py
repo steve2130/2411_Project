@@ -8,30 +8,67 @@ class ProductModel(object):
         self.__IMAGE_URL     = IMAGE_URL
         self.__PRICE         = PRICE
 
-    # Getter
+
+    # Getter & setter
     @property
     def ID(self) -> int:
         return self.__ID
     
+    @ID.setter
+    def ID(self, value):
+        self.__ID = value
+    
+
+
     @property
     def CATEGORY_ID(self) -> int:
         return self.__CATEGORY_ID
     
+    @CATEGORY_ID.setter
+    def CATEGORY_ID(self, value):
+        self.__CATEGORY_ID = value
+    
+
+
     @property
     def TITLE(self) -> str:
         return self.__TITLE
         
+    @TITLE.setter
+    def TITLE(self, value):
+        self.__TITLE = value
+
+
+
     @property
     def DESCRIPTION(self) -> str:
         return self.__DESCRIPTION
     
+    @DESCRIPTION.setter
+    def DESCRIPTION(self, value):
+        self.__DESCRIPTION = value
+
+
+
     @property
     def IMAGE_URL(self) -> str:
         return self.__IMAGE_URL
+    
+    @IMAGE_URL.setter
+    def IMAGE_URL(self, value):
+        self.__IMAGE_URL = value
+
+
 
     @property
     def PRICE(self) -> float:
         return self.__PRICE
+    
+    @PRICE.setter
+    def PRICE(self, value):
+        self.__PRICE = value
+
+
 
     # Database method
     @property
