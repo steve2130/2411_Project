@@ -1,5 +1,5 @@
-from src.db import get_connection
-from src.models import User
+from db import get_connection
+from models import User
 
 
 class UserRepository:

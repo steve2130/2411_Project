@@ -1,5 +1,5 @@
-from src.db import get_connection
-from src.models import Categories
+from db import get_connection
+from models import Categories
 
 class CategoriesRepository:
 

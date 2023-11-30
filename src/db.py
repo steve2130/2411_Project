@@ -1,28 +1,33 @@
 import oracledb
-from oracledb import Connection
+from repositories.ProductsRepo import ProductRepository
+import OracleAccount
 
-from src import OracleAccount
 
+def connect_to_DB():
+    print("in db")
 
-def create_connection_pool():
-    return oracledb.create_pool(user=OracleAccount.Oracle_Database_Account_Username,
+    PolyOracle = oracledb.ConnectParams(host="studora.comp.polyu.edu.hk", port=1521, sid="dbms")
+    dsn = PolyOracle.get_connect_string()
+    pool = oracledb.create_pool(user=OracleAccount.Oracle_Database_Account_Username,
                                 password=OracleAccount.Oracle_Database_Account_Password,
-                                dsn=oracledb.makedsn("studora.comp.polyu.edu.hk", 1521, sid="dbms"),
+                                dsn=dsn,
                                 encoding="UTF-8",
                                 min=2, max=5, increment=1,
                                 threaded=True)
 
+    print("Connected.")
+    connection = pool.acquire()
+    # a = ProductRepository(connection, connection.cursor())
+    # a.AddRecord(500, 0, "TEST", "null", "???", 499)
+    # a.Commit()
 
-def get_connection():
-    return pool.acquire()
-
-
-def return_connection(conn: Connection):
-    pool.release(conn)
-
-
-def close_all_connections():
-    pool.close()
+    return connection, connection.cursor()
 
 
-pool = create_connection_pool()
+# def return_connection(conn: Connection):
+#     pool.release(conn)
+
+
+# def close_all_connections():
+#     pool.close()
+
