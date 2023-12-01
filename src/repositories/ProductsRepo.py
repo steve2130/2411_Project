@@ -28,7 +28,7 @@ class ProductRepository:
                             """, ID=ID, CATEGORY_ID=CATEGORY_ID, TITLE=TITLE, DESCRIPTION=DESCRIPTION, IMAGE_URL=IMAGE_URL, PRICE=PRICE)
         
 
-    def GetRecord(self, column: str, query: str):
+    def GetRecord(self, column: str, query: str) -> ProductModel:
         """
         Get one/many record(s) based on the query given (e.g. PRICE > 10)
 
@@ -54,6 +54,7 @@ class ProductRepository:
         return [result for result in results]
 
 
+
     def DeleteRecord(self, column, query):
         """
         Delete one record from Products
@@ -66,8 +67,8 @@ class ProductRepository:
         statement = f"""DELETE FROM PRODUCTS
                         WHERE {str(column)} = {str(query)}
                      """
-
         self.cursor.execute(statement)
+
 
 
     def UpdateRecord(self, ID: int, CATEGORY_ID: int, TITLE: str, DESCRIPTION: str, IMAGE_URL: str, PRICE: float) -> None:

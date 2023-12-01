@@ -4,8 +4,6 @@ import OracleAccount
 
 
 def connect_to_DB():
-    print("in db")
-
     PolyOracle = oracledb.ConnectParams(host="studora.comp.polyu.edu.hk", port=1521, sid="dbms")
     dsn = PolyOracle.get_connect_string()
     pool = oracledb.create_pool(user=OracleAccount.Oracle_Database_Account_Username,

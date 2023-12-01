@@ -5,9 +5,9 @@ from models import ProductSKUs
 
 class ProductSKUsRepository:
 
-    def __init__(self):
-        self.connection = get_connection()
-        self.cursor = self.connection.cursor()
+    def __init__(self, connection, cursor):
+        self.connection = connection
+        self.cursor = cursor
 
 
     def Commit(self):
@@ -41,12 +41,10 @@ class ProductSKUsRepository:
         Output:
             List of filtered search result
         """
-        self.cursor.execute("""
-                            SELECT :column FROM PRODUCT_SKUS
-                            WHERE :query
-                            """, column=column, query=query)
-        results =  self.cursor.fetchall()
+        statement = f"SELECT {str(column)} FROM PRODUCT_SKUS WHERE {str(query)}"
 
+        self.cursor.execute(statement)
+        results =  self.cursor.fetchall()
         return [result for result in results]
 
 
@@ -59,10 +57,11 @@ class ProductSKUsRepository:
                                                                                (column)  (query)
         """
 
-        self.cursor.execute("""
-                            DELETE FROM PRODUCT_SKUS
-                            WHERE :column = :query
-                            """, column=column, query=query)
+        statement = f"""DELETE FROM PRODUCT_SKUS
+                        WHERE {str(column)} = {str(query)}
+                     """
+        self.cursor.execute(statement)
+
 
 
     def UpdateRecord(self, entity: ProductSKUs) -> None:

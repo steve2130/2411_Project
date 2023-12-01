@@ -3,9 +3,9 @@ from models import Categories
 
 class CategoriesRepository:
 
-    def __init__(self):
-        self.connection = get_connection()
-        self.cursor = self.connection.cursor()
+    def __init__(self, connection, cursor):
+        self.connection = connection
+        self.cursor = cursor
 
 
     def Commit(self):
@@ -39,12 +39,10 @@ class CategoriesRepository:
         Output:
             List of filtered search result
         """
-        self.cursor.execute("""
-                            SELECT :column FROM CATEGORIES
-                            WHERE :query
-                            """, column=column, query=query)
-        results =  self.cursor.fetchall()
+        statement = f"SELECT {str(column)} FROM CATEGORIES WHERE {str(query)}"
 
+        self.cursor.execute(statement)
+        results =  self.cursor.fetchall()
         return [result for result in results]
 
 
@@ -57,10 +55,11 @@ class CategoriesRepository:
                                                                                (column)  (query)
         """
 
-        self.cursor.execute("""
-                            DELETE FROM CATEGORIES
-                            WHERE :column = :query
-                            """, column=column, query=query)
+        statement = f"""DELETE FROM CATEGORIES
+                        WHERE {str(column)} = {str(query)}
+                     """
+        self.cursor.execute(statement)
+
 
 
     def UpdateRecord(self, entity: Categories) -> None:
