@@ -2,30 +2,41 @@ import oracledb
 from repositories.ProductsRepo import ProductRepository
 import OracleAccount
 
+# Docs for oracledb
+# https://python-oracledb.readthedocs.io/en/latest/index.html
 
-def connect_to_DB():
-    PolyOracle = oracledb.ConnectParams(host="studora.comp.polyu.edu.hk", port=1521, sid="dbms")
-    dsn = PolyOracle.get_connect_string()
-    pool = oracledb.create_pool(user=OracleAccount.Oracle_Database_Account_Username,
-                                password=OracleAccount.Oracle_Database_Account_Password,
-                                dsn=dsn,
-                                encoding="UTF-8",
-                                min=2, max=5, increment=1,
-                                threaded=True)
+class DatabaseConnection:
 
-    print("Connected.")
-    connection = pool.acquire()
-    # a = ProductRepository(connection, connection.cursor())
-    # a.AddRecord(500, 0, "TEST", "null", "???", 499)
-    # a.Commit()
+    pool = object
+    connection = object
+    cursor = object
 
-    return connection, connection.cursor()
-
-
-# def return_connection(conn: Connection):
-#     pool.release(conn)
+    def connect_to_DB(self):
+        PolyOracle = oracledb.ConnectParams(host="studora.comp.polyu.edu.hk", port=1521, sid="dbms")
+        dsn = PolyOracle.get_connect_string()
+        self.pool = oracledb.create_pool(user=OracleAccount.Oracle_Database_Account_Username,
+                                         password=OracleAccount.Oracle_Database_Account_Password,
+                                         dsn=dsn,
+                                         encoding="UTF-8",
+                                         min=2, max=5, increment=1,
+                                         threaded=True)
 
 
-# def close_all_connections():
-#     pool.close()
+        self.connection = self.pool.acquire()
+        self.cursor = self.connection.cursor()
+        print("Connected to Oracle database.")
+        # a = ProductRepository(connection, connection.cursor())
+        # a.AddRecord(500, 0, "TEST", "null", "???", 499)
+        # a.Commit()
 
+
+    def release_connection(self):
+        # When your application has finished performing all required database operations, 
+        # the pooled connection should be released to make it available for other users of the pool. 
+
+        self.pool.release(self.connection)
+
+
+    def close_all_connections(self):
+        # At application shutdown, the connection pool can be completely closed using 
+        self.pool.close()

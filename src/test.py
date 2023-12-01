@@ -3,14 +3,16 @@
 # import repositories.ProductSKUsRepo as ProductSKUsRepo
 from repositories.ProductsRepo import ProductRepository
 # import repositories.UserRepo as UserRepo
-import db
+from db import DatabaseConnection
 
 
 def main():
-    connection, cursor = db.connect_to_DB()
+    DBConnection = DatabaseConnection()
+    connection, cursor = DBConnection.connect_to_DB()
     # cursor =  stuff[1]
     a = ProductRepository(connection, cursor)
-    a.DeleteRecord("ID", 501)
+    dict1 = {"ID": 501, "CATEGORY_ID": 0, "TITLE": "Sony Stuff", "DESCRIPTION": "Fun", "IMAGE_URL": "null", "PRICE": 49.99}
+    a.AddRecord(dict1)
     a.Commit()
 
 if __name__ == "__main__":
