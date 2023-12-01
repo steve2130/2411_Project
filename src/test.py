@@ -8,12 +8,16 @@ from db import DatabaseConnection
 
 def main():
     DBConnection = DatabaseConnection()
-    connection, cursor = DBConnection.connect_to_DB()
+    DBConnection.connect_to_DB()
+    connection = DBConnection.connection
+    cursor = DBConnection.cursor
     # cursor =  stuff[1]
     a = ProductRepository(connection, cursor)
     dict1 = {"ID": 501, "CATEGORY_ID": 0, "TITLE": "Sony Stuff", "DESCRIPTION": "Fun", "IMAGE_URL": "null", "PRICE": 49.99}
-    a.AddRecord(dict1)
+    a.AddRecord(501, 0, "Sony Stuff", "Fun", "null", 49.99)
     a.Commit()
+
+    # DBConnection.close_all_connections() # may need async
 
 if __name__ == "__main__":
     main()
