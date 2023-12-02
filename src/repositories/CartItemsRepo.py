@@ -3,7 +3,7 @@ from models.CartItems import CartItemsModel
 
 # Table Name = CART_ITEMS
 
-class OrderItemsRepository:
+class CartItemsRepository:
 
     def __init__(self, connection, cursor):
         self.connection = connection

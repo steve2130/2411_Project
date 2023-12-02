@@ -8,7 +8,16 @@ import datetime
 
 # database backend stuff
 from db import DatabaseConnection
-from repositories import AddressRepo, CartItemsRepo, CategoriesRepo, OrderItemsRepo, 
+from repositories.AddressRepo       import AddressRepository
+from repositories.CartItemsRepo     import CartItemsRepository
+from repositories.CategoriesRepo    import CategoriesRepository
+from repositories.OrderItemsRepo    import OrderItemsRepository
+from repositories.OrdersRepo        import OrdersRepository
+from repositories.ProductSKUsRepo   import ProductSKUsRepository
+from repositories.ProductsRepo      import ProductsRepository
+from repositories.UserRepo          import UserRepository
+
+from services import AddressService, AuthService, UserService
 
 
 
