@@ -75,7 +75,7 @@ class ProductSKUsRepository:
                             UPDATE PRODUCT_SKUS
                             SET :Column_to_be_Updated = :value
                             WHERE :Selected_Column = :Target_Column
-                            """,  Column_to_be_Updated = Column_to_be_Updated, value=value, Selected_Column=Selected_Column, Target_Column=Target_Column)
+                            """,  Column_to_be_Updated=Column_to_be_Updated, value=value, Selected_Column=Selected_Column, Target_Column=Target_Column)
 
 
     def ReturnNumberOfEntries(self):

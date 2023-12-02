@@ -395,7 +395,12 @@ def main(root):
                         # crsr.close()
                         # conn.close()
 
-                        ProductSKUsRepo.UpdateRecord("STOCK", int(item[2]), "PRODUCT_ID", int(item[0]))
+                        Stock = ProductSKUsRepo.GetRecord("*", f" WHERE ID = {item[0]}")
+                        Stock = int(Stock[0].get("STOCK"))
+                        Stock = Stock - int(item[2])
+                        row = int(item[0])
+
+                        ProductSKUsRepo.UpdateRecord("STOCK", Stock, "PRODUCT_ID", row)
                         ProductSKUsRepo.Commit()
 
 
