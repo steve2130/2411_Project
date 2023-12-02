@@ -351,7 +351,7 @@ def main(root):
                     # crsr.close()
                     # conn.close()
                     record_number = int(OrdersRepo.ReturnNumberOfEntries()) + 1
-                    OrdersRepo.AddRecord(record_number, user_id, addressID[0], total_price['text'][2:], "null", str(datetime.datetime.now()), str(payment_method_combobox.get()), payment_entry.get(), "Not Shipped yet", address_entry.get(), "null", "null", "null")
+                    OrdersRepo.AddRecord(record_number, user_id, addressID[0], total_price['text'][2:], "null", datetime.datetime.now(), payment_method_combobox.get(), payment_entry.get(), "Not Shipped yet", address_entry.get(), "null", "null", "N")
                     OrdersRepo.Commit()
 
                     # get order_id by top 1 and user_id
@@ -794,9 +794,9 @@ def main(root):
                     # conn.close()
 
                     ProductsRepo.AddRecord(ProductsRepo.ReturnNumberOfEntries() + 1, 0, product_name_entry.get(), product_description_entry.get(), "null", product_price_entry.get())
-                    ProdcutSKUsRepo.AddRecord(ProdcutSKUsRepo.ReturnNumberOfEntries() + 1, ProductsRepo.ReturnNumberOfEntries(), product_name_entry.get(), product_description_entry.get(), product_price_entry.get(), stock_spinbox.get())
+                    ProductSKUsRepo.AddRecord(ProductSKUsRepo.ReturnNumberOfEntries() + 1, ProductsRepo.ReturnNumberOfEntries(), product_name_entry.get(), product_description_entry.get(), product_price_entry.get(), stock_spinbox.get())
                     ProductsRepo.Commit()
-                    ProdcutSKUsRepo.Commit()
+                    ProductSKUsRepo.Commit()
 
 
                 except Exception as e:
@@ -834,7 +834,7 @@ def main(root):
                 # crsr.close()
                 # conn.close()
 
-                rows = ProdcutSKUsRepo.GetRecord("*", "")
+                rows = ProductSKUsRepo.GetRecord("*", "")
 
 
 
@@ -1342,7 +1342,7 @@ def main(root):
                 # product = crsr.fetchone()
                 # crsr.close()
                 # conn.close()
-                product = ProdcutSKUsRepoRepo.GetRecord("*", f"WHERE PRODUCT_ID = {row[2]}")
+                product = ProductSKUsRepo.GetRecord("*", f"WHERE PRODUCT_ID = {row[2]}")
 
                 sales_report_table.insert("", "end", text="", values=(row.get("ID"), row.get("ORDER_ID"), product.get("STOCK"), product.get("TITLE"), product.get("DESCRIPTION"), row.get("PRODUCT_ID"), row.get("AMOUNT")))
             
