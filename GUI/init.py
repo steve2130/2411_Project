@@ -6,14 +6,22 @@ import tkinter.messagebox
 import pyodbc
 import datetime
 
+# database backend stuff
+from db import DatabaseConnection
+from repositories import AddressRepo, CartItemsRepo, CategoriesRepo, OrderItemsRepo, 
+
+
+
+
+
 ## Local DB Connection
-def connect_test_db():
-    conn = pyodbc.connect(
-        'DRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost;UID=sa;PWD=Test1234;TrustServerCertificate=yes')
-    crsr = conn.cursor()
-    #crsr.close()
-    #conn.close()
-    return crsr, conn
+# def connect_test_db():
+#     conn = pyodbc.connect(
+#         'DRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost;UID=sa;PWD=Test1234;TrustServerCertificate=yes')
+#     crsr = conn.cursor()
+#     #crsr.close()
+#     #conn.close()
+#     return crsr, conn
 
 # Production Remote DB Connection
 # Oracle DB Connection
@@ -46,7 +54,14 @@ on_page = ""
 uname = ""
 def main(root):
     global on_page
+    DBConnect = DatabaseConnection()
+    DBConnect.connect_to_DB()
+
     def on_closing():
+        # Exit Database
+        DBConnect.release_connection()
+        DBConnect.close_all_connections()
+        # Exit GUI
         portal.destroy()
         root.deiconify()
         root.destroy()
@@ -184,7 +199,8 @@ def main(root):
             
             # check if items are in stock
             for item in items:
-                crsr, conn = connect_test_db()
+                crsr = DBConnect.cursor
+                conn = DBConnect.connection
                 crsr.execute("SELECT * FROM test.dbo.products WHERE id=?", item[0])
                 rows = crsr.fetchall()
                 crsr.close()
@@ -281,7 +297,8 @@ def main(root):
                 
                 try:
                     # get user_id from username and store in variable
-                    crsr, conn = connect_test_db()
+                    crsr = DBConnect.cursor
+                    conn = DBConnect.connection
                     crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", uname)
                     rows = crsr.fetchall()
                     crsr.close()
@@ -289,7 +306,8 @@ def main(root):
                     user_id = rows[0][0]
 
                     # commit order meta to database: user_id, total_amount, paid_at, payment_method, payment_no, shipment_data 
-                    crsr, conn = connect_test_db()
+                    crsr = DBConnect.cursor
+                    conn = DBConnect.connection
 
                     # ...
 
@@ -299,7 +317,8 @@ def main(root):
                     conn.close()
 
                     # get order_id by top 1 and user_id
-                    crsr, conn = connect_test_db()
+                    crsr = DBConnect.cursor
+                    conn = DBConnect.connection
                     crsr.execute("SELECT TOP 1 * FROM test.dbo.orders WHERE user_id=? ORDER BY id DESC", user_id)
                     rows = crsr.fetchall()
                     crsr.close()
@@ -308,7 +327,8 @@ def main(root):
 
                     # commit order items to database: order_id, product_id, price, amount
                     for item in items:
-                        crsr, conn = connect_test_db()
+                        crsr = DBConnect.cursor
+                        conn = DBConnect.connection
                         crsr.execute("INSERT INTO test.dbo.order_items (order_id, product_id, price, amount) VALUES (?, ?, ?, ?)", order_id, item[0], item[3], item[2])
                         conn.commit()
                         crsr.close()
@@ -316,7 +336,8 @@ def main(root):
                     
                     # deduct stock from products table
                     for item in items:
-                        crsr, conn = connect_test_db()
+                        crsr = DBConnect.cursor
+                        conn = DBConnect.connection
                         crsr.execute("UPDATE test.dbo.products SET stock=stock-? WHERE id=?", item[2], item[0])
                         conn.commit()
                         crsr.close()
@@ -346,7 +367,8 @@ def main(root):
             place_order_button.place(x=400, y=270, anchor="e")
 
             # populate entries
-            crsr, conn = connect_test_db()
+            crsr = DBConnect.cursor
+            conn = DBConnect.connection
             crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", uname)
             rows = crsr.fetchall()
             crsr.close()
@@ -413,7 +435,8 @@ def main(root):
             sort_option = sort_by_menu.get()
             if sort_option == "Price":
                 product_table.delete(*product_table.get_children())
-                crsr, conn = connect_test_db()
+                crsr = DBConnect.cursor
+                conn = DBConnect.connection
                 crsr.execute("SELECT * FROM test.dbo.products ORDER BY lowest_price")
                 rows = crsr.fetchall()
                 for row in rows:
@@ -422,7 +445,8 @@ def main(root):
                 conn.close()
             elif sort_option == "Name":
                 product_table.delete(*product_table.get_children())
-                crsr, conn = connect_test_db()
+                crsr = DBConnect.cursor
+                conn = DBConnect.connection
                 crsr.execute("SELECT * FROM test.dbo.products ORDER BY title")
                 rows = crsr.fetchall()
                 for row in rows:
@@ -433,7 +457,8 @@ def main(root):
         sort_by_menu.bind("<<ComboboxSelected>>", lambda event: sort_by())
 
         def search():
-            crsr, conn = connect_test_db()
+            crsr = DBConnect.cursor
+            conn = DBConnect.connection
             crsr.execute("SELECT * FROM test.dbo.products WHERE title LIKE ?", f"%{search_bar.get()}%")
             results = []
             rows = crsr.fetchall()
@@ -518,7 +543,8 @@ def main(root):
         add_to_cart_button = ttk.Button(product_info_panel, text="Add to Cart", bootstyle="warning", command=add_to_cart)
         add_to_cart_button.place(x=100, y=130, anchor="e")
 
-        crsr, conn = connect_test_db()
+        crsr = DBConnect.cursor
+        conn = DBConnect.connection
         crsr.execute("SELECT * FROM test.dbo.products")
         results = []
         rows = crsr.fetchall()
@@ -646,7 +672,8 @@ def main(root):
                 # update product information
                 item = inventory_table.selection()[0]
                 try:
-                    crsr, conn = connect_test_db()
+                    crsr = DBConnect.cursor
+                    conn = DBConnect.connection
                     crsr.execute("UPDATE test.dbo.products SET title=?, lowest_price=?, description=?, stock=? WHERE id=?", product_name_entry.get(), product_price_entry.get(), product_description_entry.get(), stock_spinbox.get(), inventory_table.item(item, "values")[0])
                     conn.commit()
                     crsr.close()
@@ -664,7 +691,8 @@ def main(root):
                 # delete product from database
                 item = inventory_table.selection()[0]
                 try:
-                    crsr, conn = connect_test_db()
+                    crsr = DBConnect.cursor
+                    conn = DBConnect.connection
                     crsr.execute("DELETE FROM test.dbo.products WHERE id=?", inventory_table.item(item, "values")[0])
                     conn.commit()
                     crsr.close()
@@ -682,7 +710,8 @@ def main(root):
             def add_product():
                 # add product to database
                 try:
-                    crsr, conn = connect_test_db()
+                    crsr = DBConnect.cursor
+                    conn = DBConnect.connection
                     crsr.execute("INSERT INTO test.dbo.products (title, lowest_price, description, stock, category_id) VALUES (?, ?, ?, ?, ?)", product_name_entry.get(), product_price_entry.get(), product_description_entry.get(), stock_spinbox.get(), "1")
                     conn.commit()
                     crsr.close()
@@ -709,7 +738,8 @@ def main(root):
             def populate_inventory_table():
                 
                 inventory_table.delete(*inventory_table.get_children())
-                crsr, conn = connect_test_db()
+                crsr = DBConnect.cursor
+                conn = DBConnect.connection
                 crsr.execute("SELECT * FROM test.dbo.products")
                 results = []
                 rows = crsr.fetchall()
@@ -816,7 +846,7 @@ def main(root):
 
             # Contact Number Label
             contact_number_label = ttk.Label(account_details_frame, text="Tel.")
-            contact_number_label.place(x=510, y=130, anchor="w")
+            contact_number_label.place(x=277, y=130, anchor="w")
 
             # Contact Number Entry
             contact_number_entry = ttk.Entry(account_details_frame)
@@ -843,7 +873,8 @@ def main(root):
                     return
                 else:
                     try:
-                        crsr, conn = connect_test_db()
+                        crsr = DBConnect.cursor
+                        conn = DBConnect.connection
                         crsr.execute("UPDATE test.dbo.users SET username=?, password=?, contact_name=?, contact_number=?, details=? WHERE username=?", username_entry.get(), password_entry.get(), contact_name_entry.get(), contact_number_entry.get(), address_entry.get(), uname)
                         conn.commit()
                         crsr.close()
@@ -859,7 +890,8 @@ def main(root):
 
             # populate account details
             def populate_account_details():
-                crsr, conn = connect_test_db()
+                crsr = DBConnect.cursor
+                conn = DBConnect.connection
                 crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", uname)
                 rows = crsr.fetchall()
                 crsr.close()
@@ -935,7 +967,8 @@ def main(root):
             # populate user table
             def populate_user_table():
                 user_table.delete(*user_table.get_children())
-                crsr, conn = connect_test_db()
+                crsr = DBConnect.cursor
+                conn = DBConnect.connection
                 crsr.execute("SELECT * FROM test.dbo.users")
                 rows = crsr.fetchall()
                 crsr.close()
@@ -958,7 +991,8 @@ def main(root):
             def delete_user():
                 item = user_table.selection()[0]
                 try:
-                    crsr, conn = connect_test_db()
+                    crsr = DBConnect.cursor
+                    conn = DBConnect.connection
                     crsr.execute("DELETE FROM test.dbo.users WHERE id=?", user_table.item(item, "values")[0])
                     conn.commit()
                     crsr.close()
@@ -1037,7 +1071,7 @@ def main(root):
 
                 # Contact Number Label
                 contact_number_label = ttk.Label(account_details_frame, text="Tel.")
-                contact_number_label.place(x=510, y=130, anchor="w")
+                contact_number_label.place(x=277, y=130, anchor="w")
 
                 # Contact Number Entry
                 contact_number_entry = ttk.Entry(account_details_frame)
@@ -1064,7 +1098,8 @@ def main(root):
                         return
                     else:
                         try:
-                            crsr, conn = connect_test_db()
+                            crsr = DBConnect.cursor
+                            conn = DBConnect.connection
                             crsr.execute("UPDATE test.dbo.users SET username=?, password=?, contact_name=?, contact_number=?, details=? WHERE username=?", username_entry.get(), password_entry.get(), contact_name_entry.get(), contact_number_entry.get(), address_entry.get(), uname)
                             conn.commit()
                             crsr.close()
@@ -1081,7 +1116,8 @@ def main(root):
                 
                 # populate account details
                 def populate_account_details():
-                    crsr, conn = connect_test_db()
+                    crsr = DBConnect.cursor
+                    conn = DBConnect.connection
                     crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", luname)
                     rows = crsr.fetchall()
                     crsr.close()
@@ -1106,7 +1142,8 @@ def main(root):
             def make_user_admin():
                 item = user_table.selection()[0]
                 try:
-                    crsr, conn = connect_test_db()
+                    crsr = DBConnect.cursor
+                    conn = DBConnect.connection
                     crsr.execute("UPDATE test.dbo.users SET is_admin=? WHERE id=?", "1", user_table.item(item, "values")[0])
                     conn.commit()
                     crsr.close()
@@ -1177,7 +1214,8 @@ def main(root):
         # populate sales report table
         def populate_sales_report_table():
             # get all order items
-            crsr, conn = connect_test_db()
+            crsr = DBConnect.cursor
+            conn = DBConnect.connection
             crsr.execute("SELECT * FROM test.dbo.order_items")
             rows = crsr.fetchall()
             crsr.close()
@@ -1185,7 +1223,8 @@ def main(root):
 
             # get name and description of each item
             for row in rows:
-                crsr, conn = connect_test_db()
+                crsr = DBConnect.cursor
+                conn = DBConnect.connection
                 crsr.execute("SELECT * FROM test.dbo.products WHERE id=?", row[2])
                 product = crsr.fetchone()
                 crsr.close()
@@ -1203,7 +1242,8 @@ def main(root):
         try:
             username = username_entry.get()
             password = password_entry.get()
-            crsr, conn = connect_test_db()
+            crsr = DBConnect.cursor
+            conn = DBConnect.connection
 
             crsr.execute("SELECT * FROM test.dbo.users")
             rows = crsr.fetchall()
@@ -1363,7 +1403,7 @@ def main(root):
 
             # Contact Number Label
             contact_number_label = ttk.Label(account_details_frame, text="Tel.")
-            contact_number_label.place(x=510, y=130, anchor="w")
+            contact_number_label.place(x=277, y=130, anchor="w")
 
             # Contact Number Entry
             contact_number_entry = ttk.Entry(account_details_frame)
@@ -1392,7 +1432,8 @@ def main(root):
                 else:
                     try:
                         # add user to database with username, "", password, "0", contact_name, contact_number, details
-                        crsr, conn = connect_test_db()
+                        crsr = DBConnect.cursor
+                        conn = DBConnect.connection
                         crsr.execute("INSERT INTO test.dbo.users (username, password, is_admin, contact_name, contact_number, details) VALUES (?, ?, ?, ?, ?, ?)", username_entry.get(), password_entry.get(), "0", contact_name_entry.get(), contact_number_entry.get(), address_entry.get())
                         conn.commit()
                         crsr.close()
