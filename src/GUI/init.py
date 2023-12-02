@@ -336,11 +336,11 @@ def main(root):
                     # crsr.close()
                     # conn.close()
 
-                    rows = UserRepo.find_by_username(uname)
-                    user_id = rows[0].get("ID")
+                    user_id = UserRepo.find_by_username(uname)
+                    user_id = rows[0]
 
                     addressID = AddressRepo.get_by_user_id(user_id)
-                    addressID = addressID[0].get("id")
+                    addressID = addressID[0]
 
                     # commit order meta to database: user_id, total_amount, paid_at, payment_method, payment_no, shipment_data 
                     # crsr = DBConnect.cursor
@@ -431,7 +431,9 @@ def main(root):
             # crsr.close()
             # conn.close()
 
-            await rows = UserRepo.find_by_username(uname)
+
+            userData = UserRepo.find_by_username(uname)
+            addressData = AddressRepo.get_by_user_id(userData[0])
 
             ship_to_entry.insert(0, rows[0][5])
             contact_number_entry.insert(0, rows[0][6])
@@ -486,7 +488,7 @@ def main(root):
         sort_by_label = ttk.Label(right_frame, text="")
         sort_by_label.pack(padx=10, pady=10)
 
-        sort_by_menu = ttk.Combobox(right_frame, values=["Price", "Name"], width=15, textvariable="Sort By")
+        sort_by_menu = ttk.Combobox(right_frame, values=["Price", "Name", "Product ID"], width=15, textvariable="Sort By")
         sort_by_menu.place(x=170, y=60, anchor="e")
         search_bar.place(x=185, y=60, anchor="w")
 
@@ -494,18 +496,26 @@ def main(root):
             sort_option = sort_by_menu.get()
             if sort_option == "Price":
                 product_table.delete(*product_table.get_children())
-                ProductsRepo.GetRecord("*", "ORDER BY PRICE")
+                rows = ProductsRepo.GetRecord("*", "ORDER BY PRICE")
                 
                 for row in rows:
-                    product_table.insert("", "end", text="", values=(row[0], row[1], row[5], row[2], row[3]))
+                    product_table.insert("", "end", text="", values=(row.get("ID"), row.get("CATEGORY_ID"), row.get("PRICE"), row.get("TITLE"), row.get("DESCRIPTION")))
             
 
 
             elif sort_option == "Name":
                 product_table.delete(*product_table.get_children())
-                ProductsRepo.GetRecord("*", "ORDER BY TITLE")
+                rows = ProductsRepo.GetRecord("*", "ORDER BY TITLE")
                 for row in rows:
-                    product_table.insert("", "end", text="", values=(row[0], row[1], row[5], row[2], row[3]))
+                    product_table.insert("", "end", text="", values=(row.get("ID"), row.get("CATEGORY_ID"), row.get("PRICE"), row.get("TITLE"), row.get("DESCRIPTION")))
+
+
+            elif sort_option == "Product ID":
+                product_table.delete(*product_table.get_children())
+                rows = ProductsRepo.GetRecord("*", "ORDER BY ID")
+                for row in rows:
+                    product_table.insert("", "end", text="", values=(row.get("ID"), row.get("CATEGORY_ID"), row.get("PRICE"), row.get("TITLE"), row.get("DESCRIPTION")))
+
 
         sort_by_menu.bind("<<ComboboxSelected>>", lambda event: sort_by())
 
@@ -783,12 +793,7 @@ def main(root):
                     # crsr.close()
                     # conn.close()
 
-                    ProductsRepo.AddRecord(ProductsRepo.ReturnNumberOfEntries() + 1, 1, product_name_entry.get(), product_description_entry.get(), "null", product_price_entry.get())
-                    ProductSKUsRepo.AddRecord(ProductSKUsRepo.ReturnNumberOfEntries() + 1, ProductsRepo.ReturnNumberOfEntries(), product_name_entry.get(), product_description_entry.get(), product_price_entry.get(), stock_spinbox.get())
-                    ProductsRepo.Commit()
-                    ProductSKUsRepo.Commit()
-
-
+                    
                 except Exception as e:
                     print(e)
                 empty_fields()
