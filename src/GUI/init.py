@@ -758,7 +758,7 @@ def main(root):
                     # conn.close()
 
                     ProductsRepo.DeleteRecord("ID", inventory_table.item(item, "values")[0])
-                    ProdcutSKUsRepo.DeleteRecord("PRODUCT_ID", inventory_table.item(item, "values")[0])
+                    ProductSKUsRepo.DeleteRecord("PRODUCT_ID", inventory_table.item(item, "values")[0])
 
                     ProductsRepo.Commit()
                     ProductSKUsRepo.Commit()
@@ -776,12 +776,19 @@ def main(root):
             def add_product():
                 # add product to database
                 try:
-                    crsr = DBConnect.cursor
-                    conn = DBConnect.connection
-                    crsr.execute("INSERT INTO test.dbo.products (title, lowest_price, description, stock, category_id) VALUES (?, ?, ?, ?, ?)", product_name_entry.get(), product_price_entry.get(), product_description_entry.get(), stock_spinbox.get(), "1")
-                    conn.commit()
-                    crsr.close()
-                    conn.close()
+                    # crsr = DBConnect.cursor
+                    # conn = DBConnect.connection
+                    # crsr.execute("INSERT INTO test.dbo.products (title, lowest_price, description, stock, category_id) VALUES (?, ?, ?, ?, ?)", product_name_entry.get(), product_price_entry.get(), product_description_entry.get(), stock_spinbox.get(), "1")
+                    # conn.commit()
+                    # crsr.close()
+                    # conn.close()
+
+                    ProductsRepo.AddRecord(ProductsRepo.ReturnNumberOfEntries() + 1, 1, product_name_entry.get(), product_description_entry.get(), "null", product_price_entry.get())
+                    ProductSKUsRepo.AddRecord(ProductSKUsRepo.ReturnNumberOfEntries() + 1, ProductsRepo.ReturnNumberOfEntries(), product_name_entry.get(), product_description_entry.get(), product_price_entry.get(), stock_spinbox.get())
+                    ProductsRepo.Commit()
+                    ProductSKUsRepo.Commit()
+
+
                 except Exception as e:
                     print(e)
                 empty_fields()

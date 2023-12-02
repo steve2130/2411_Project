@@ -16,7 +16,7 @@ class ProductSKUsRepository:
         self.connection.commit()
 
 
-    def AddRecord(self, ID: int, NAME: str, Product_ID: int, TITLE: str, DESCRIPTION: str, PRICE: float, STOCK: int):
+    def AddRecord(self, ID: int, PRODUCT_ID: int, TITLE: str, DESCRIPTION: str, PRICE: float, STOCK: int):
         """
         Add one record to Product_SKUs
 
@@ -24,9 +24,9 @@ class ProductSKUsRepository:
         """
         # Accept dict only 
         self.cursor.execute("""
-                            INSERT INTO PRODUCT_SKUS (ID, NAME, PRODUCT_ID, TITLE, DESCRIPTION, PRICE, STOCK)
-                            VALUES (:ID, :NAME, :PRODUCT_ID, :TITLE, :DESCRIPTION, :PRICE, :STOCK)
-                            """, ID=ID, NAME=NAME, PRODUCT_ID=PRODUCT_ID, TITLE=TITLE, DESCRIPTION=DESCRIPTION, PRICE=PRICE, STOCK=STOCK)
+                            INSERT INTO PRODUCT_SKUS (ID, PRODUCT_ID, TITLE, DESCRIPTION, PRICE, STOCK)
+                            VALUES (:ID, :PRODUCT_ID, :TITLE, :DESCRIPTION, :PRICE, :STOCK)
+                            """, ID=ID, PRODUCT_ID=PRODUCT_ID, TITLE=TITLE, DESCRIPTION=DESCRIPTION, PRICE=PRICE, STOCK=STOCK)
         
 
     def GetRecord(self, column, query):

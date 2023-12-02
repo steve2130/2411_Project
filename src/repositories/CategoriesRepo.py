@@ -24,7 +24,7 @@ class CategoriesRepository:
         self.cursor.execute("""
                             INSERT INTO Categories (ID, NAME)
                             VALUES (:ID, :NAME)
-                            """, entity.to_db)
+                            """, ID=ID, NAME=NAME)
         
 
     def GetRecord(self, column: str, query: str) -> CategoriesModel:
