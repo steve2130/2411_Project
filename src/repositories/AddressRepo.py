@@ -44,4 +44,4 @@ class AddressRepository:
     def ReturnNumberOfEntries(self):
         NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM addresses")
         NumberOfEntries = self.cursor.fetchone()
-        return int(NumberOfEntries)
+        return int(NumberOfEntries[0])

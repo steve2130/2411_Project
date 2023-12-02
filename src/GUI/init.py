@@ -380,7 +380,7 @@ def main(root):
                         rows = ProductSKUsRepo.GetRecord("*", f"WHERE PRODUCT_ID = {item[0]}")
                         Product_ID = rows[0].get("PRODUCT_ID")
 
-                        record_number = int(OrderItemsRepo.ReturnNumberOfEntries()) + 1
+                        record_number = int(OrderItemsRepo.ReturnNumberOfEntries() + 1)
                         OrderItemsRepo.AddRecord(record_number, order_id, item[0], Product_ID, item[2], item[3])
                         OrdersRepo.Commit()
 
@@ -400,7 +400,7 @@ def main(root):
                         Stock = Stock - int(item[2])
                         row = int(item[0])
 
-                        ProductSKUsRepo.UpdateRecord("STOCK", Stock, "PRODUCT_ID", row)
+                        ProductSKUsRepo.UpdateRecord("STOCK", Stock, "ID", row)
                         ProductSKUsRepo.Commit()
 
 
