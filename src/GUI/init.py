@@ -337,7 +337,7 @@ def main(root):
                     # conn.close()
 
                     user_id = UserRepo.find_by_username(uname)
-                    user_id = rows[0]
+                    user_id = user_id[0]
 
                     addressID = AddressRepo.get_by_user_id(user_id)
                     addressID = addressID[0]
@@ -350,8 +350,8 @@ def main(root):
                     # conn.commit()
                     # crsr.close()
                     # conn.close()
-
-                    OrdersRepo.AddRecord(OrderRepo.ReturnNumberOfEntries() + 1, user_id, addressID, total_price['text'][2:], "null", datetime.datetime.now(), payment_method_combobox.get(), payment_entry.get(), "Not Shipped yet", address_entry.get(), "null", "null", "null")
+                    record_number = int(OrdersRepo.ReturnNumberOfEntries()) + 1
+                    OrdersRepo.AddRecord(record_number, user_id, addressID[0], total_price['text'][2:], "null", str(datetime.datetime.now()), str(payment_method_combobox.get()), payment_entry.get(), "Not Shipped yet", address_entry.get(), "null", "null", "null")
                     OrdersRepo.Commit()
 
                     # get order_id by top 1 and user_id
@@ -435,13 +435,13 @@ def main(root):
             userData = UserRepo.find_by_username(uname)
             addressData = AddressRepo.get_by_user_id(userData[0])
 
-            ship_to_entry.insert(0, rows[0][5])
-            contact_number_entry.insert(0, rows[0][6])
-            address_entry.insert(0, rows[0][7])
+            ship_to_entry.insert(0, userData[1])
+            # contact_number_entry.insert(0, rows[0][6])
+            address_entry.insert(0, addressData[0][2].read())
 
             payment_method_combobox.config(state="readonly")
             ship_to_entry.config(state="readonly")
-            contact_number_entry.config(state="readonly")
+            # contact_number_entry.config(state="readonly")
             address_entry.config(state="readonly")
 
 
@@ -793,7 +793,12 @@ def main(root):
                     # crsr.close()
                     # conn.close()
 
-                    
+                    ProductsRepo.AddRecord(ProductsRepo.ReturnNumberOfEntries() + 1, 0, product_name_entry.get(), product_description_entry.get(), "null", product_price_entry.get())
+                    ProdcutSKUsRepo.AddRecord(ProdcutSKUsRepo.ReturnNumberOfEntries() + 1, ProductsRepo.ReturnNumberOfEntries(), product_name_entry.get(), product_description_entry.get(), product_price_entry.get(), stock_spinbox.get())
+                    ProductsRepo.Commit()
+                    ProdcutSKUsRepo.Commit()
+
+
                 except Exception as e:
                     print(e)
                 empty_fields()
@@ -816,18 +821,22 @@ def main(root):
             def populate_inventory_table():
                 
                 inventory_table.delete(*inventory_table.get_children())
-                crsr = DBConnect.cursor
-                conn = DBConnect.connection
-                crsr.execute("SELECT * FROM test.dbo.products")
-                results = []
-                rows = crsr.fetchall()
-                for row in rows:
-                    result = {}
-                    for i, column in enumerate(crsr.description):
-                        result[column[0]] = row[i]
-                    results.append(result)
-                crsr.close()
-                conn.close()
+                # crsr = DBConnect.cursor
+                # conn = DBConnect.connection
+                # crsr.execute("SELECT * FROM test.dbo.products")
+                # results = []
+                # rows = crsr.fetchall()
+                # for row in rows:
+                #     result = {}
+                #     for i, column in enumerate(crsr.description):
+                #         result[column[0]] = row[i]
+                #     results.append(result)
+                # crsr.close()
+                # conn.close()
+
+                rows = ProdcutSKUsRepo.GetRecord("*", "")
+
+
 
                 # Insert data into table
                 for row in rows:
@@ -951,12 +960,16 @@ def main(root):
                     return
                 else:
                     try:
-                        crsr = DBConnect.cursor
-                        conn = DBConnect.connection
-                        crsr.execute("UPDATE test.dbo.users SET username=?, password=?, contact_name=?, contact_number=?, details=? WHERE username=?", username_entry.get(), password_entry.get(), contact_name_entry.get(), contact_number_entry.get(), address_entry.get(), uname)
-                        conn.commit()
-                        crsr.close()
-                        conn.close()
+                        # crsr = DBConnect.cursor
+                        # conn = DBConnect.connection
+                        # crsr.execute("UPDATE test.dbo.users SET username=?, password=?, contact_name=?, contact_number=?, details=? WHERE username=?", username_entry.get(), password_entry.get(), contact_name_entry.get(), contact_number_entry.get(), address_entry.get(), uname)
+                        # conn.commit()
+                        # crsr.close()
+                        # conn.close()
+                        UserID = UserRepo.find_by_username(username_entry.get())
+                        UserRepo.update(UserID[0], username_entry.get(), "null", password_entry.get(), UserID[4])
+
+
                         tk.messagebox.showinfo("Success", "Details updated")
                         populate_account_details()
                     except Exception as e:
@@ -968,12 +981,15 @@ def main(root):
 
             # populate account details
             def populate_account_details():
-                crsr = DBConnect.cursor
-                conn = DBConnect.connection
-                crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", uname)
-                rows = crsr.fetchall()
-                crsr.close()
-                conn.close()
+                # crsr = DBConnect.cursor
+                # conn = DBConnect.connection
+                # crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", uname)
+                # rows = crsr.fetchall()
+                # crsr.close()
+                # conn.close()
+
+                rows = UserRepo.find_by_username(uname)
+
 
                 # Insert data into table
                 for row in rows:
@@ -1045,12 +1061,18 @@ def main(root):
             # populate user table
             def populate_user_table():
                 user_table.delete(*user_table.get_children())
-                crsr = DBConnect.cursor
-                conn = DBConnect.connection
-                crsr.execute("SELECT * FROM test.dbo.users")
-                rows = crsr.fetchall()
-                crsr.close()
-                conn.close()
+                # crsr = DBConnect.cursor
+                # conn = DBConnect.connection
+                # crsr.execute("SELECT * FROM test.dbo.users")
+                # rows = crsr.fetchall()
+                # crsr.close()
+                # conn.close()
+
+                DBConnect.cursor.execute("SELECT * FROM User")
+                rows = DBConnect.cursor.fetchall()
+
+                DBConnect.cursor.execute("SELECT * FROM Address")
+                AddressData = DBConnect.cursor.fetchall()
 
                 # Insert data into table
                 for row in rows:
@@ -1069,12 +1091,16 @@ def main(root):
             def delete_user():
                 item = user_table.selection()[0]
                 try:
-                    crsr = DBConnect.cursor
-                    conn = DBConnect.connection
-                    crsr.execute("DELETE FROM test.dbo.users WHERE id=?", user_table.item(item, "values")[0])
-                    conn.commit()
-                    crsr.close()
-                    conn.close()
+                    # crsr = DBConnect.cursor
+                    # conn = DBConnect.connection
+                    # crsr.execute("DELETE FROM test.dbo.users WHERE id=?", user_table.item(item, "values")[0])
+                    # conn.commit()
+                    # crsr.close()
+                    # conn.close()
+
+                    UserRepo.delete(user_table.item(item, "values")[0])
+
+
                 except:
                     print("Error deleting user")
                 populate_user_table()
@@ -1176,12 +1202,15 @@ def main(root):
                         return
                     else:
                         try:
-                            crsr = DBConnect.cursor
-                            conn = DBConnect.connection
-                            crsr.execute("UPDATE test.dbo.users SET username=?, password=?, contact_name=?, contact_number=?, details=? WHERE username=?", username_entry.get(), password_entry.get(), contact_name_entry.get(), contact_number_entry.get(), address_entry.get(), uname)
-                            conn.commit()
-                            crsr.close()
-                            conn.close()
+                            # crsr = DBConnect.cursor
+                            # conn = DBConnect.connection
+                            # crsr.execute("UPDATE test.dbo.users SET username=?, password=?, contact_name=?, contact_number=?, details=? WHERE username=?", username_entry.get(), password_entry.get(), contact_name_entry.get(), contact_number_entry.get(), address_entry.get(), uname)
+                            # conn.commit()
+                            # crsr.close()
+                            # conn.close()
+                            UserID = UserRepo.find_by_username(username_entry.get())
+                            UserRepo.update(UserID[0], username_entry.get(), "null", password_entry.get(), UserID[4])
+
                             tk.messagebox.showinfo("Success", "Details updated")
                             edit_user_window.destroy()
                         except Exception as e:
@@ -1194,12 +1223,14 @@ def main(root):
                 
                 # populate account details
                 def populate_account_details():
-                    crsr = DBConnect.cursor
-                    conn = DBConnect.connection
-                    crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", luname)
-                    rows = crsr.fetchall()
-                    crsr.close()
-                    conn.close()
+                    # crsr = DBConnect.cursor
+                    # conn = DBConnect.connection
+                    # crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", luname)
+                    # rows = crsr.fetchall()
+                    # crsr.close()
+                    # conn.close()
+
+                    rows = UserRepo.find_by_username(luname)
 
                     # Insert data into table
                     for row in rows:
@@ -1220,12 +1251,14 @@ def main(root):
             def make_user_admin():
                 item = user_table.selection()[0]
                 try:
-                    crsr = DBConnect.cursor
-                    conn = DBConnect.connection
-                    crsr.execute("UPDATE test.dbo.users SET is_admin=? WHERE id=?", "1", user_table.item(item, "values")[0])
-                    conn.commit()
-                    crsr.close()
-                    conn.close()
+                    # crsr = DBConnect.cursor
+                    # conn = DBConnect.connection
+                    # crsr.execute("UPDATE test.dbo.users SET is_admin=? WHERE id=?", "1", user_table.item(item, "values")[0])
+                    # conn.commit()
+                    # crsr.close()
+                    # conn.close()
+                    UserID = UserRepo.find_by_username(username_entry.get())
+                    UserRepo.update(UserID[0], UserID[1], UserID[2], UserID[3], user_table.item(item, "values")[0])
                 except:
                     print("Error making user admin")
                 populate_user_table()
@@ -1292,22 +1325,26 @@ def main(root):
         # populate sales report table
         def populate_sales_report_table():
             # get all order items
-            crsr = DBConnect.cursor
-            conn = DBConnect.connection
-            crsr.execute("SELECT * FROM test.dbo.order_items")
-            rows = crsr.fetchall()
-            crsr.close()
-            conn.close()
+            # crsr = DBConnect.cursor
+            # conn = DBConnect.connection
+            # crsr.execute("SELECT * FROM test.dbo.order_items")
+            # rows = crsr.fetchall()
+            # crsr.close()
+            # conn.close()
+
+            rows = OrderItemsRepo.GetRecord("*", "")
 
             # get name and description of each item
             for row in rows:
-                crsr = DBConnect.cursor
-                conn = DBConnect.connection
-                crsr.execute("SELECT * FROM test.dbo.products WHERE id=?", row[2])
-                product = crsr.fetchone()
-                crsr.close()
-                conn.close()
-                sales_report_table.insert("", "end", text="", values=(row[0], row[1], product[5], product[2], product[3], row[3], row[4]))
+                # crsr = DBConnect.cursor
+                # conn = DBConnect.connection
+                # crsr.execute("SELECT * FROM test.dbo.products WHERE id=?", row[2])
+                # product = crsr.fetchone()
+                # crsr.close()
+                # conn.close()
+                product = ProdcutSKUsRepoRepo.GetRecord("*", f"WHERE PRODUCT_ID = {row[2]}")
+
+                sales_report_table.insert("", "end", text="", values=(row.get("ID"), row.get("ORDER_ID"), product.get("STOCK"), product.get("TITLE"), product.get("DESCRIPTION"), row.get("PRODUCT_ID"), row.get("AMOUNT")))
             
         populate_sales_report_table()
 
@@ -1520,12 +1557,14 @@ def main(root):
                 else:
                     try:
                         # add user to database with username, "", password, "0", contact_name, contact_number, details
-                        crsr = DBConnect.cursor
-                        conn = DBConnect.connection
-                        crsr.execute("INSERT INTO test.dbo.users (username, password, is_admin, contact_name, contact_number, details) VALUES (?, ?, ?, ?, ?, ?)", username_entry.get(), password_entry.get(), "0", contact_name_entry.get(), contact_number_entry.get(), address_entry.get())
-                        conn.commit()
-                        crsr.close()
-                        conn.close()
+                        # crsr = DBConnect.cursor
+                        # conn = DBConnect.connection
+                        # crsr.execute("INSERT INTO test.dbo.users (username, password, is_admin, contact_name, contact_number, details) VALUES (?, ?, ?, ?, ?, ?)", username_entry.get(), password_entry.get(), "0", contact_name_entry.get(), contact_number_entry.get(), address_entry.get())
+                        # conn.commit()
+                        # crsr.close()
+                        # conn.close()
+                        UserRepo.create(username_entry.get(), "null", password_entry.get(), "N")
+
                         tk.messagebox.showinfo("Success", "Account created")
                         register_win.destroy()
 

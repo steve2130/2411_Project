@@ -27,21 +27,21 @@ class UserRepository:
         self.cursor.execute("SELECT * FROM users WHERE username = :username", {'username': username})
         return self.cursor.fetchone()
 
-    def update(self, id_: int, data: dict):
-        fields = []
-        if 'avatar_url' in data:
-            fields.append('avatar_url = :avatar_url')
-        if 'password' in data:
-            fields.append('password = :password')
-        if 'is_admin' in data:
-            fields.append('is_admin = :is_admin')
+    def update(self, id_: int, username: str, avatar_url: str, password: str, is_admin: bool):
+        # fields = []
+        # if 'avatar_url' in data:
+        #     fields.append('avatar_url = :avatar_url')
+        # if 'password' in data:
+        #     fields.append('password = :password')
+        # if 'is_admin' in data:
+        #     fields.append('is_admin = :is_admin')
 
-        data['id'] = id_
+        # data['id'] = id_
         self.cursor.execute("""
                             UPDATE users
-                            SET """ + ', '.join(fields) + """
+                            SET username = :username, avatar_url = :avatar_url, password = :password, is_admin = :is_admin
                             WHERE id = :id
-                            """, data)
+                            """, username=username, avatar_url=avatar_url, password=password, is_admin=is_admin, id=id)
         self.connection.commit()
 
     def delete(self, id_: int):
