@@ -1,7 +1,6 @@
-#from db import get_connection
 from models.Products import ProductModel
 
-class ProductRepository:
+class ProductsRepository:
 
     def __init__(self, connection, cursor):
         self.connection = connection

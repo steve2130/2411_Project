@@ -1,4 +1,3 @@
-from db import get_connection
 from models import User
 
 
@@ -7,8 +6,11 @@ class UserRepository:
     A class to interact with the users table in the database.
     """
 
-    def __init__(self):
-        self.connection = get_connection()
+
+    def __init__(self, connection, cursor):
+        self.connection = connection
+        self.cursor = cursor
+
 
     def create(self, username: str, avatar_url: str, password: str, is_admin: bool):
         cursor = self.connection.cursor()

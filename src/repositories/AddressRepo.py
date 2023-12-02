@@ -1,14 +1,12 @@
-
-from ..db import get_connection
-
-
 class AddressRepository:
     """
     A class to interact with the addresses table in the database.
     """
 
-    def __init__(self):
-        self.connection = get_connection()
+    def __init__(self, connection, cursor):
+        self.connection = connection
+        self.cursor = cursor
+
 
     def create(self, user_id: int, contact_name: str, contact_phone: str, details: str):
         cursor = self.connection.cursor()

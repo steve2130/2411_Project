@@ -1,5 +1,5 @@
 import oracledb
-from repositories.ProductsRepo import ProductRepository
+from repositories.ProductsRepo import ProductsRepository
 import OracleAccount
 
 # Docs for oracledb

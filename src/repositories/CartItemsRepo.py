@@ -1,4 +1,3 @@
-from db import get_connection
 from models.CartItems import CartItemsModel
 
 # Table Name = CART_ITEMS

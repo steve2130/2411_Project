@@ -1,5 +1,4 @@
-from db import get_connection
-from models import ProductSKUs
+from models.ProductSKUs import ProductSKUsModel
 
 # Table name = PRODUCT_SKUS
 
@@ -17,7 +16,7 @@ class ProductSKUsRepository:
         self.connection.commit()
 
 
-    def AddRecord(self, entity=ProductSKUs):
+    def AddRecord(self, entity=ProductSKUsModel):
         """
         Add one record to Product_SKUs
 
@@ -64,7 +63,7 @@ class ProductSKUsRepository:
 
 
 
-    def UpdateRecord(self, entity: ProductSKUs) -> None:
+    def UpdateRecord(self, entity: ProductSKUsModel) -> None:
         """
         Update a record (searched with ID) with the changed attribute (change with setter in ProductSKUs.py)
         """

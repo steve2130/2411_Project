@@ -1,7 +1,7 @@
 import bcrypt
 
-from src.models import User
-from src.repositories.UserRepo import UserRepository
+from models import User
+from repositories.UserRepo import UserRepository
 
 
 class AuthService:

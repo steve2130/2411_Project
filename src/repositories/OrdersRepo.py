@@ -1,4 +1,3 @@
-from db import get_connection
 from models.Orders import OrdersModel
 
 # Table Name = ORDERS

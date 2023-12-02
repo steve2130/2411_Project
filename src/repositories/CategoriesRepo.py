@@ -1,5 +1,4 @@
-from db import get_connection
-from models import Categories
+from models.Categories import CategoriesModel
 
 class CategoriesRepository:
 
@@ -15,7 +14,7 @@ class CategoriesRepository:
         self.connection.commit()
 
 
-    def AddRecord(self, entity=Categories):
+    def AddRecord(self, entity=CategoriesModel):
         """
         Add one record to Categories
 

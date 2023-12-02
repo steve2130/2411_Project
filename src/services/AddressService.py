@@ -1,5 +1,5 @@
-from src.models import Address
-from src.repositories.AddressRepo import AddressRepository
+from models import Address
+from repositories.AddressRepo import AddressRepository
 
 
 class AddressService:
