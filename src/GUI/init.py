@@ -5,8 +5,13 @@ import tkinter as tk
 import tkinter.messagebox
 import pyodbc
 import datetime
+import sys
+import os.path
 
 # database backend stuff
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
 from db import DatabaseConnection
 from repositories.AddressRepo       import AddressRepository
 from repositories.CartItemsRepo     import CartItemsRepository
