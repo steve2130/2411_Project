@@ -41,11 +41,14 @@ class OrdersRepository:
         Output:
             List of filtered search result
         """
-        statement = f"SELECT {str(column)} FROM ORDERS WHERE {str(query)}"
+        statement = f"SELECT {str(column)} FROM ORDERS {str(query)}"
 
         self.cursor.execute(statement)
+        columns = [col[0] for col in self.cursor.description]
+        self.cursor.rowfactory = lambda *args: dict(zip(columns, args))
+        
         results =  self.cursor.fetchall()
-        return [result for result in results]
+        return results
 
 
 
@@ -76,3 +79,10 @@ class OrdersRepository:
                             SET :USER_ID, :ADDRESS_ID, :TOTAL_AMOUNT, :REMARK, :PAID_AT, :PAYMENT_METHOD, :PAYMENT_NO, :SHIPMENT_STATUS, :SHIPMENT_DATA, :REFUND_STATUS, :REFUND_NO, :CLOSED
                             WHERE :ID, 
                             """, USER_ID=USER_ID, ADDRESS_ID=ADDRESS_ID, TOTAL_AMOUNT=TOTAL_AMOUNT, REMARK=REMARK, PAID_AT=PAID_AT, PAYMENT_METHOD=PAYMENT_METHOD, PAYMENT_NO=PAYMENT_NO, SHIPMENT_STATUS=SHIPMENT_STATUS, SHIPMENT_DATA=SHIPMENT_DATA, REFUND_STATUS=REFUND_STATUS, REFUND_NO=REFUND_NO, CLOSED=CLOSED, ID=ID)
+
+
+
+
+    def ReturnNumberOfEntries(self):
+        NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM ORDERS")
+        return NumberOfEntries

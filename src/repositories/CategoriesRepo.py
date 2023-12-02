@@ -14,7 +14,7 @@ class CategoriesRepository:
         self.connection.commit()
 
 
-    def AddRecord(self, entity=CategoriesModel):
+    def AddRecord(self, ID: int, NAME: str):
         """
         Add one record to Categories
 
@@ -27,7 +27,7 @@ class CategoriesRepository:
                             """, entity.to_db)
         
 
-    def GetRecord(self, column, query):
+    def GetRecord(self, column: str, query: str) -> CategoriesModel:
         """
         Get one/many record(s) based on the query given (e.g. ID = 10)
 
@@ -38,11 +38,14 @@ class CategoriesRepository:
         Output:
             List of filtered search result
         """
-        statement = f"SELECT {str(column)} FROM CATEGORIES WHERE {str(query)}"
+        statement = f"SELECT {str(column)} FROM CATEGORIES {str(query)}"
 
         self.cursor.execute(statement)
+
+        columns = [col[0] for col in self.cursor.description]
+        self.cursor.rowfactory = lambda *args: dict(zip(columns, args))
         results =  self.cursor.fetchall()
-        return [result for result in results]
+        return results
 
 
     def DeleteRecord(self, column, query):
@@ -72,3 +75,8 @@ class CategoriesRepository:
                             SET :NAME
                             WHERE :ID
                             """, NAME=NAME, ID=ID)
+
+
+    def ReturnNumberOfEntries(self):
+        NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM CATEGORIES")
+        return NumberOfEntries

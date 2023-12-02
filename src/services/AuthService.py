@@ -5,8 +5,8 @@ from repositories.UserRepo import UserRepository
 
 
 class AuthService:
-    def __init__(self):
-        self.user_repo = UserRepository()
+    def __init__(self, connection, cursor):
+        self.user_repo = UserRepository(connection, cursor)
 
     def register(self, username: str, password: str):
         """
@@ -38,7 +38,7 @@ class AuthService:
         if user is None:
             return None
 
-        if not self.__check_password(password, user.password):
+        if not self.__check_password(password, user[3]):
             return None
 
         # TODO: save the user in session
@@ -70,9 +70,13 @@ class AuthService:
         return True
 
     @staticmethod
-    def __check_password(password: str, hashed: str) -> bool:
-        return bcrypt.checkpw(password.encode(), hashed.encode())
+    def __check_password(password: str, password_in_DB: str) -> bool:
+        return (password == password_in_DB)
 
-    @staticmethod
-    def __hash_password(password: str) -> str:
-        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    # @staticmethod
+    # def __check_password(password: str, hashed: str) -> bool:
+    #     return bcrypt.checkpw(password.encode(), hashed.encode())
+
+    # @staticmethod
+    # def __hash_password(password: str) -> str:
+    #     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()

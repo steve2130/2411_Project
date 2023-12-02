@@ -41,11 +41,14 @@ class OrderItemsRepository:
         Output:
             List of filtered search result
         """
-        statement = f"SELECT {str(column)} FROM ORDER_ITEMS WHERE {str(query)}"
+        statement = f"SELECT {str(column)} FROM ORDER_ITEMS {str(query)}"
 
         self.cursor.execute(statement)
+    
+        columns = [col[0] for col in self.cursor.description]
+        self.cursor.rowfactory = lambda *args: dict(zip(columns, args))
         results =  self.cursor.fetchall()
-        return [result for result in results]
+        return results
 
 
 
@@ -74,3 +77,8 @@ class OrderItemsRepository:
                             SET :ORDER_ID, :PRODUCT_ID, :PRODUCT_SKU_ID, :AMOUNT, :PRICE
                             WHERE :ID, 
                             """, ORDER_ID=ORDER_ID, PRODUCT_ID=PRODUCT_ID, PRODUCT_SKU_ID=PRODUCT_SKU_ID, AMOUNT=AMOUNT, PRICE=PRICE, ID=ID)
+
+
+    def ReturnNumberOfEntries(self):
+        NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM ORDER_ITEMS")
+        return NumberOfEntries

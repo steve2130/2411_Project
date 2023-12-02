@@ -3,10 +3,10 @@ from repositories.AddressRepo import AddressRepository
 
 
 class AddressService:
-    def __init__(self):
-        self.address_repo = AddressRepository()
+    def __init__(self, connection, cursor):
+        self.address_repo = AddressRepository(connection, cursor)
 
-    def get_user_addresses(self, user_id: int) -> list[Address]:
+    def get_user_addresses(self, user_id: int) -> list:
         return self.address_repo.get_by_user_id(user_id)
 
     def add_address_to_user(self, user_id: int, contact_name: str, contact_phone: str, address_details: str):

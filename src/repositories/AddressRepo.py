@@ -39,3 +39,8 @@ class AddressRepository:
         cursor = self.connection.cursor()
         cursor.execute("DELETE FROM addresses WHERE id = :id", {'id': id_})
         self.connection.commit()
+
+
+    def ReturnNumberOfEntries(self):
+        NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM addresses")
+        return NumberOfEntries

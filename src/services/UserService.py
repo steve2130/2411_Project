@@ -3,8 +3,8 @@ from repositories.UserRepo import UserRepository
 
 
 class UserService:
-    def __init__(self):
-        self.user_repo = UserRepository()
+    def __init__(self, connection, cursor):
+        self.user_repo = UserRepository(connection, cursor)
 
     def get_user_by_id(self, user_id: int) -> User or None:
         return self.user_repo.find(user_id)

@@ -76,3 +76,8 @@ class CartItemsRepository:
                             SET :USER_ID, :PRODUCT_SKU_ID, :AMOUNT
                             WHERE :ID, 
                             """, USER_ID=USER_ID, PRODUCT_SKU_ID=PRODUCT_SKU_ID, AMOUNT=AMOUNT, ID=ID)
+
+
+    def ReturnNumberOfEntries(self):
+        NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM CART_ITEMS")
+        return NumberOfEntries

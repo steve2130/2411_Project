@@ -33,7 +33,7 @@ class ProductsRepository:
 
         Input:
             column (str) -> A column of the table (e.g. ID, CATEGORY_ID, TITLE, ...)
-            query (str)  -> Searching condition IN SQL FORMAT!!!!!! (e.g. PRICE > 10)
+            query (str)  -> Searching condition IN SQL FORMAT!!!!!! (e.g. PRICE > 10) or sorting method (ORDER BY)
 
         Output:
             List of filtered search result
@@ -42,15 +42,19 @@ class ProductsRepository:
         # For some unknown reason, you can't use bind variables like this:
 
         # self.cursor.execute("""
-        #                     SELECT :column FROM PRODUCTS WHERE :query
+        #                     SELECT :column FROM PRODUCTS :query
         #                     """, column=column, query=query)
 
 
-        statement = f"SELECT {str(column)} FROM PRODUCTS WHERE {str(query)}"
+        statement = f"SELECT {str(column)} FROM PRODUCTS {str(query)}"
 
         self.cursor.execute(statement)
+
+        columns = [col[0] for col in self.cursor.description]
+        self.cursor.rowfactory = lambda *args: dict(zip(columns, args))
+
         results =  self.cursor.fetchall()
-        return [result for result in results]
+        return results
 
 
 
@@ -70,13 +74,18 @@ class ProductsRepository:
 
 
 
-    def UpdateRecord(self, ID: int, CATEGORY_ID: int, TITLE: str, DESCRIPTION: str, IMAGE_URL: str, PRICE: float) -> None:
+    def UpdateRecord(self, Column_to_be_Updated, value, Selected_Column, Target_Column) -> None:
         """
-        Update a record (searched with ID) with the changed attribute (change with setter in Product.py)
-        ID: int, CATEGORY_ID: int, TITLE: str, DESCRIPTION: str, IMAGE_URL: str, PRICE: float,
+        Update a record 
+        Accept: Column_to_be_Updated (str), value (any kind), Selected_Column (str), Target_Column (str)
         """
         self.cursor.execute("""
                             UPDATE PRODUCTS
-                            SET CATEGORY_ID=:CATEGORY_ID, TITLE=:TITLE, DESCRIPTION=:DESCRIPTION, IMAGE_URL=:IMAGE_URL, PRICE=:PRICE
-                            WHERE ID = :ID
-                            """, CATEGORY_ID=CATEGORY_ID, TITLE=TITLE, DESCRIPTION=DESCRIPTION, IMAGE_URL=IMAGE_URL, PRICE=PRICE, ID=ID)
+                            SET :Column_to_be_Updated = :value
+                            WHERE :Selected_Column = :Target_Column
+                            """,  Column_to_be_Updated = Column_to_be_Updated, value=value, Selected_Column=Selected_Column, Target_Column=Target_Column)
+
+
+    def ReturnNumberOfEntries(self):
+        NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM PRODUCTS")
+        return NumberOfEntries

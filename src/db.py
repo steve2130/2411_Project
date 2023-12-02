@@ -43,6 +43,10 @@ class DatabaseConnection:
         self.__pool.close()
 
 
+    def force_close_all_connections(self):
+        # At application shutdown, the connection pool can be completely closed using 
+        self.__pool.close(force = True)
+
 
 # getters
     @property

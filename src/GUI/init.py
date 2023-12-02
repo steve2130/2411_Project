@@ -22,8 +22,9 @@ from repositories.ProductSKUsRepo   import ProductSKUsRepository
 from repositories.ProductsRepo      import ProductsRepository
 from repositories.UserRepo          import UserRepository
 
-from services import AddressService, AuthService, UserService
-
+from services.AddressService        import AddressService
+from services.AuthService           import AuthService
+from services.UserService           import UserService
 
 
 
@@ -71,10 +72,23 @@ def main(root):
     DBConnect = DatabaseConnection()
     DBConnect.connect_to_DB()
 
+    # Object creation
+    AddressRepo     = AddressRepository(DBConnect.connection, DBConnect.cursor)
+    CartItemsRepo   = CartItemsRepository(DBConnect.connection, DBConnect.cursor)
+    CategoriesRepo  = CategoriesRepository(DBConnect.connection, DBConnect.cursor)
+    OrderItemsRepo  = OrderItemsRepository(DBConnect.connection, DBConnect.cursor)
+    OrdersRepo      = OrdersRepository(DBConnect.connection, DBConnect.cursor)
+    ProductSKUsRepo = ProductSKUsRepository(DBConnect.connection, DBConnect.cursor)
+    ProductsRepo    = ProductsRepository(DBConnect.connection, DBConnect.cursor)
+    UserRepo        = UserRepository(DBConnect.connection, DBConnect.cursor)
+
+    AuthServices        = AuthService(DBConnect.connection, DBConnect.cursor)
+    AddressServices     = AddressService(DBConnect.connection, DBConnect.cursor)
+    UserServices        = UserService(DBConnect.connection, DBConnect.cursor)
+
     def on_closing():
         # Exit Database
-        DBConnect.release_connection()
-        DBConnect.close_all_connections()
+        DBConnect.force_close_all_connections()
         # Exit GUI
         portal.destroy()
         root.deiconify()
@@ -213,14 +227,17 @@ def main(root):
             
             # check if items are in stock
             for item in items:
-                crsr = DBConnect.cursor
-                conn = DBConnect.connection
-                crsr.execute("SELECT * FROM test.dbo.products WHERE id=?", item[0])
-                rows = crsr.fetchall()
-                crsr.close()
-                conn.close()
+                row = ProductSKUsRepo.GetRecord("*", f"WHERE ID = {item[0]}")
+            
 
-                if int(rows[0][6]) < int(item[2]):
+                # crsr = DBConnect.cursor
+                # conn = DBConnect.connection
+                # crsr.execute("SELECT * FROM test.dbo.products WHERE id=?", item[0])
+                # rows = crsr.fetchall()
+                # crsr.close()
+                # conn.close()
+
+                if (int(row[0].get("STOCK")) <= 0): # idk it's list 
                     tk.messagebox.showerror("Error", "Not enough stock")
                     checkout_window.destroy()
                     return
@@ -311,51 +328,76 @@ def main(root):
                 
                 try:
                     # get user_id from username and store in variable
-                    crsr = DBConnect.cursor
-                    conn = DBConnect.connection
-                    crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", uname)
-                    rows = crsr.fetchall()
-                    crsr.close()
-                    conn.close()
-                    user_id = rows[0][0]
+
+                    # crsr = DBConnect.cursor
+                    # conn = DBConnect.connection
+                    # crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", uname)
+                    # rows = crsr.fetchall()
+                    # crsr.close()
+                    # conn.close()
+
+                    rows = UserRepo.find_by_username(uname)
+                    user_id = rows[0].get("ID")
+
+                    addressID = AddressRepo.get_by_user_id(user_id)
+                    addressID = addressID[0].get("id")
 
                     # commit order meta to database: user_id, total_amount, paid_at, payment_method, payment_no, shipment_data 
-                    crsr = DBConnect.cursor
-                    conn = DBConnect.connection
+                    # crsr = DBConnect.cursor
+                    # conn = DBConnect.connection
 
-                    # ...
+                    # crsr.execute("INSERT INTO test.dbo.orders (user_id, total_amount, paid_at, payment_method, payment_no, shipment_data) VALUES (?, ?, ?, ?, ?, ?)", user_id, total_price['text'][2:], datetime.datetime.now(), payment_method_combobox.get(), payment_entry.get(), address_entry.get())
+                    # conn.commit()
+                    # crsr.close()
+                    # conn.close()
 
-                    crsr.execute("INSERT INTO test.dbo.orders (user_id, total_amount, paid_at, payment_method, payment_no, shipment_data) VALUES (?, ?, ?, ?, ?, ?)", user_id, total_price['text'][2:], datetime.datetime.now(), payment_method_combobox.get(), payment_entry.get(), address_entry.get())
-                    conn.commit()
-                    crsr.close()
-                    conn.close()
+                    OrdersRepo.AddRecord(OrderRepo.ReturnNumberOfEntries() + 1, user_id, addressID, total_price['text'][2:], "null", datetime.datetime.now(), payment_method_combobox.get(), payment_entry.get(), "Not Shipped yet", address_entry.get(), "null", "null", "null")
+                    OrdersRepo.Commit()
 
                     # get order_id by top 1 and user_id
-                    crsr = DBConnect.cursor
-                    conn = DBConnect.connection
-                    crsr.execute("SELECT TOP 1 * FROM test.dbo.orders WHERE user_id=? ORDER BY id DESC", user_id)
-                    rows = crsr.fetchall()
-                    crsr.close()
-                    conn.close()
-                    order_id = rows[0][0]
+
+                    # crsr = DBConnect.cursor
+                    # conn = DBConnect.connection
+                    # crsr.execute("SELECT TOP 1 * FROM test.dbo.orders WHERE user_id=? ORDER BY id DESC", user_id)
+                    # rows = crsr.fetchall()
+                    # crsr.close()
+                    # conn.close()
+                    # order_id = rows[0][0]
+                    rows = OrdersRepo.GetRecord("*", f"WHERE USER_ID = {user_id} ORDER BY ID DESC")
+                    order_id = rows[0].get("ID")
+
+
+                    
 
                     # commit order items to database: order_id, product_id, price, amount
                     for item in items:
-                        crsr = DBConnect.cursor
-                        conn = DBConnect.connection
-                        crsr.execute("INSERT INTO test.dbo.order_items (order_id, product_id, price, amount) VALUES (?, ?, ?, ?)", order_id, item[0], item[3], item[2])
-                        conn.commit()
-                        crsr.close()
-                        conn.close()
+                        # crsr = DBConnect.cursor
+                        # conn = DBConnect.connection
+                        # crsr.execute("INSERT INTO test.dbo.order_items (order_id, product_id, price, amount) VALUES (?, ?, ?, ?)", order_id, item[0], item[3], item[2])
+                        # conn.commit()
+                        # crsr.close()
+                        # conn.close()
+                        rows = ProductSKUsRepo.GetRecord("*", f"WHERE PRODUCT_ID = {item[0]}")
+                        Product_ID = rows[0].get("PRODUCT_ID")
+
+                        OrderItemsRepo.AddRecord(OrderItemsRepo.ReturnNumberOfEntries() + 1, order_id, item[0], Product_ID, item[2], item[3])
+                        OrdersRepo.Commit()
+
+
                     
                     # deduct stock from products table
                     for item in items:
-                        crsr = DBConnect.cursor
-                        conn = DBConnect.connection
-                        crsr.execute("UPDATE test.dbo.products SET stock=stock-? WHERE id=?", item[2], item[0])
-                        conn.commit()
-                        crsr.close()
-                        conn.close()
+                        # crsr = DBConnect.cursor
+                        # conn = DBConnect.connection
+                        # crsr.execute("UPDATE test.dbo.products SET stock=stock-? WHERE id=?", item[2], item[0])
+                        # conn.commit()
+                        # crsr.close()
+                        # conn.close()
+
+                        ProductSKUsRepo.UpdateRecord("STOCK", item[2], "PRODUCT_ID", item[0])
+                        ProductSKUsRepo.Commit()
+
+
 
                     # empty cart
                     empty_cart()
@@ -381,12 +423,15 @@ def main(root):
             place_order_button.place(x=400, y=270, anchor="e")
 
             # populate entries
-            crsr = DBConnect.cursor
-            conn = DBConnect.connection
-            crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", uname)
-            rows = crsr.fetchall()
-            crsr.close()
-            conn.close()
+
+            # crsr = DBConnect.cursor
+            # conn = DBConnect.connection
+            # crsr.execute("SELECT * FROM test.dbo.users WHERE username=?", uname)
+            # rows = crsr.fetchall()
+            # crsr.close()
+            # conn.close()
+
+            await rows = UserRepo.find_by_username(uname)
 
             ship_to_entry.insert(0, rows[0][5])
             contact_number_entry.insert(0, rows[0][6])
@@ -449,47 +494,44 @@ def main(root):
             sort_option = sort_by_menu.get()
             if sort_option == "Price":
                 product_table.delete(*product_table.get_children())
-                crsr = DBConnect.cursor
-                conn = DBConnect.connection
-                crsr.execute("SELECT * FROM test.dbo.products ORDER BY lowest_price")
-                rows = crsr.fetchall()
+                ProductsRepo.GetRecord("*", "ORDER BY PRICE")
+                
                 for row in rows:
                     product_table.insert("", "end", text="", values=(row[0], row[1], row[5], row[2], row[3]))
-                crsr.close()
-                conn.close()
+            
+
+
             elif sort_option == "Name":
                 product_table.delete(*product_table.get_children())
-                crsr = DBConnect.cursor
-                conn = DBConnect.connection
-                crsr.execute("SELECT * FROM test.dbo.products ORDER BY title")
-                rows = crsr.fetchall()
+                ProductsRepo.GetRecord("*", "ORDER BY TITLE")
                 for row in rows:
                     product_table.insert("", "end", text="", values=(row[0], row[1], row[5], row[2], row[3]))
-                crsr.close()
-                conn.close()
 
         sort_by_menu.bind("<<ComboboxSelected>>", lambda event: sort_by())
 
         def search():
-            crsr = DBConnect.cursor
-            conn = DBConnect.connection
-            crsr.execute("SELECT * FROM test.dbo.products WHERE title LIKE ?", f"%{search_bar.get()}%")
-            results = []
-            rows = crsr.fetchall()
-            for row in rows:
-                result = {}
-                for i, column in enumerate(crsr.description):
-                    result[column[0]] = row[i]
-                results.append(result)
-            crsr.close()
-            conn.close()
+            # crsr = DBConnect.cursor
+            # conn = DBConnect.connection
+            # crsr.execute("SELECT * FROM test.dbo.products WHERE title LIKE ?", f"%{search_bar.get()}%")
+            # results = []
+            # rows = crsr.fetchall()
+
+            rows = ProductsRepo.GetRecord("*", f"WHERE TITLE LIKE {search_bar.get()}")
+
+            # for row in rows:
+            #     result = {}
+            #     for i, column in enumerate(crsr.description):
+            #         result[column[0]] = row[i]
+            #     results.append(result)
+            # crsr.close()
+            # conn.close()
 
             # clear table
             product_table.delete(*product_table.get_children())
             
             # insert data into table
             for row in rows:
-                product_table.insert("", "end", text="", values=(row[0], row[1], row[5], row[2], row[3]))
+                product_table.insert("", "end", text="", values=(row.get("ID"), row.get("CATEGORY_ID"), row.get("PRICE"), row.get("TITLE"), row.get("DESCRIPTION")))
 
         
         search_button = ttk.Button(right_frame, text="Search", bootstyle="secondary", command=search)
@@ -557,22 +599,18 @@ def main(root):
         add_to_cart_button = ttk.Button(product_info_panel, text="Add to Cart", bootstyle="warning", command=add_to_cart)
         add_to_cart_button.place(x=100, y=130, anchor="e")
 
-        crsr = DBConnect.cursor
-        conn = DBConnect.connection
-        crsr.execute("SELECT * FROM test.dbo.products")
+        rows = ProductsRepo.GetRecord("*", "")
+
         results = []
-        rows = crsr.fetchall()
-        for row in rows:
-            result = {}
-            for i, column in enumerate(crsr.description):
-                result[column[0]] = row[i]
-            results.append(result)
-        crsr.close()
-        conn.close()
+        # for row in rows:
+        #     result = {}
+        #     # for i, column in enumerate(crsr.description):
+        #     #     result[column[0]] = row[i]
+        #     results.append(result)
 
         # insert data into table
         for row in rows:
-            product_table.insert("", "end", text="", values=(row[0], row[1], row[5], row[2], row[3]))
+            product_table.insert("", "end", text="", values=(row.get("ID"), row.get("CATEGORY_ID"), row.get("PRICE"), row.get("TITLE"), row.get("DESCRIPTION")))
 
         # update product information panel when clicked
         def update_product_info(event):
@@ -686,12 +724,19 @@ def main(root):
                 # update product information
                 item = inventory_table.selection()[0]
                 try:
-                    crsr = DBConnect.cursor
-                    conn = DBConnect.connection
-                    crsr.execute("UPDATE test.dbo.products SET title=?, lowest_price=?, description=?, stock=? WHERE id=?", product_name_entry.get(), product_price_entry.get(), product_description_entry.get(), stock_spinbox.get(), inventory_table.item(item, "values")[0])
-                    conn.commit()
-                    crsr.close()
-                    conn.close()
+                    # crsr = DBConnect.cursor
+                    # conn = DBConnect.connection
+                    # crsr.execute("UPDATE test.dbo.products SET title=?, lowest_price=?, description=?, stock=? WHERE id=?", product_name_entry.get(), product_price_entry.get(), product_description_entry.get(), stock_spinbox.get(), inventory_table.item(item, "values")[0])
+                    # conn.commit()
+                    # crsr.close()
+                    # conn.close()
+
+                    ProductsRepo.UpdateRecord("TITLE", product_name_entry.get(), "ID", inventory_table.item(item, "values")[0])
+                    ProductsRepo.UpdateRecord("PRICE", product_price_entry.get(), "ID", inventory_table.item(item, "values")[0])
+                    ProductsRepo.UpdateRecord("DESCRIPTION", product_description_entry.get(), "ID", inventory_table.item(item, "values")[0])
+                    ProductSKUsRepo.UpdateRecord("STOCK", stock_spinbox.get(), "PRODUCT_ID", inventory_table.item(item, "values")[0])
+                    ProductsRepo.Commit()
+
                 except:
                     print("Error updating product")
                 empty_fields()
@@ -705,12 +750,19 @@ def main(root):
                 # delete product from database
                 item = inventory_table.selection()[0]
                 try:
-                    crsr = DBConnect.cursor
-                    conn = DBConnect.connection
-                    crsr.execute("DELETE FROM test.dbo.products WHERE id=?", inventory_table.item(item, "values")[0])
-                    conn.commit()
-                    crsr.close()
-                    conn.close()
+                    # crsr = DBConnect.cursor
+                    # conn = DBConnect.connection
+                    # crsr.execute("DELETE FROM test.dbo.products WHERE id=?", inventory_table.item(item, "values")[0])
+                    # conn.commit()
+                    # crsr.close()
+                    # conn.close()
+
+                    ProductsRepo.DeleteRecord("ID", inventory_table.item(item, "values")[0])
+                    ProdcutSKUsRepo.DeleteRecord("PRODUCT_ID", inventory_table.item(item, "values")[0])
+
+                    ProductsRepo.Commit()
+                    ProductSKUsRepo.Commit()
+
                 except:
                     print("Error deleting product")
                 
@@ -1256,27 +1308,37 @@ def main(root):
         try:
             username = username_entry.get()
             password = password_entry.get()
-            crsr = DBConnect.cursor
-            conn = DBConnect.connection
 
-            crsr.execute("SELECT * FROM test.dbo.users")
-            rows = crsr.fetchall()
-            crsr.close()
-            conn.close()
+            user = AuthServices.authenticate(username, password)
+
+            # crsr = DBConnect.cursor
+            # conn = DBConnect.connection
+            # crsr.execute("SELECT * FROM test.dbo.users")
+            # rows = crsr.fetchall()
+            # crsr.close()
+            # conn.close()
         except Exception as e:
             print(e)
             tk.messagebox.showerror("Error", "Error connecting to database")
             return False
 
-        for row in rows:
-            # check if username is found and password matches
-            if row[1] == username and row[3] == password:
-                uname = username
-                if row[4] == "1":
+
+        if user is not None:
+                if user[4] == "Y":
                     is_admin = True
                 print("Login success!")
                 flag = True
-                break
+
+        # for row in user:
+        #     # check if username is found and password matches
+        #     if row[1] == username and row[3] == password:
+        #         uname = username
+        #         if row[4] == "1":
+        #             is_admin = True
+        #         print("Login success!")
+        #         flag = True
+        #         break
+
         else:   # If no break
             login_label.config(text="Login failed. Please try again.")      
 
@@ -1301,7 +1363,7 @@ def main(root):
             account_button = ttk.Button(menu_frame, text="My Account", command=lambda: myac(menu_frame), bootstyle="info")
             account_button.pack(side="left")
 
-            print (is_admin)
+            print (f"Admin: {is_admin}")
             if is_admin:
                 
                 # Inventory button

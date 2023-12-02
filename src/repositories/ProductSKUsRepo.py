@@ -16,7 +16,7 @@ class ProductSKUsRepository:
         self.connection.commit()
 
 
-    def AddRecord(self, entity=ProductSKUsModel):
+    def AddRecord(self, ID: int, NAME: str, Product_ID: int, TITLE: str, DESCRIPTION: str, PRICE: float, STOCK: int):
         """
         Add one record to Product_SKUs
 
@@ -26,7 +26,7 @@ class ProductSKUsRepository:
         self.cursor.execute("""
                             INSERT INTO PRODUCT_SKUS (ID, NAME, PRODUCT_ID, TITLE, DESCRIPTION, PRICE, STOCK)
                             VALUES (:ID, :NAME, :PRODUCT_ID, :TITLE, :DESCRIPTION, :PRICE, :STOCK)
-                            """, entity.to_db)
+                            """, ID=ID, NAME=NAME, PRODUCT_ID=PRODUCT_ID, TITLE=TITLE, DESCRIPTION=DESCRIPTION, PRICE=PRICE, STOCK=STOCK)
         
 
     def GetRecord(self, column, query):
@@ -40,11 +40,14 @@ class ProductSKUsRepository:
         Output:
             List of filtered search result
         """
-        statement = f"SELECT {str(column)} FROM PRODUCT_SKUS WHERE {str(query)}"
+        statement = f"SELECT {str(column)} FROM PRODUCT_SKUS {str(query)}"
 
         self.cursor.execute(statement)
+       
+        columns = [col[0] for col in self.cursor.description]
+        self.cursor.rowfactory = lambda *args: dict(zip(columns, args))
         results =  self.cursor.fetchall()
-        return [result for result in results]
+        return results
 
 
     def DeleteRecord(self, column, query):
@@ -63,12 +66,18 @@ class ProductSKUsRepository:
 
 
 
-    def UpdateRecord(self, entity: ProductSKUsModel) -> None:
+    def UpdateRecord(self, Column_to_be_Updated, value, Selected_Column, Target_Column) -> None:
         """
-        Update a record (searched with ID) with the changed attribute (change with setter in ProductSKUs.py)
+        Update a record 
+        Accept: Column_to_be_Updated (str), value (any kind), Selected_Column (str), Target_Column (str)
         """
         self.cursor.execute("""
                             UPDATE PRODUCT_SKUS
-                            SET :NAME, :PRODUCT_ID, :TITLE, :DESCRIPTION, :PRICE, :STOCK
-                            WHERE :ID
-                            """, NAME=entity.NAME, PRODUCT_ID=entity.PRODUCT_ID, TITLE=entity.TITLE, DESCRIPTION=entity.DESCRIPTION, PRICE=entity.PRICE, STOCK=entity.STOCK, ID=entity.ID)
+                            SET :Column_to_be_Updated = :value
+                            WHERE :Selected_Column = :Target_Column
+                            """,  Column_to_be_Updated = Column_to_be_Updated, value=value, Selected_Column=Selected_Column, Target_Column=Target_Column)
+
+
+    def ReturnNumberOfEntries(self):
+        NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM PRODUCT_SKUS")
+        return NumberOfEntries
