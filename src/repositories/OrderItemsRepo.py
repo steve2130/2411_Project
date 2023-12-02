@@ -81,4 +81,5 @@ class OrderItemsRepository:
 
     def ReturnNumberOfEntries(self):
         NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM ORDER_ITEMS")
-        return NumberOfEntries
+        NumberOfEntries = self.cursor.fetchone()
+        return int(NumberOfEntries)

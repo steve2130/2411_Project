@@ -80,4 +80,5 @@ class CartItemsRepository:
 
     def ReturnNumberOfEntries(self):
         NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM CART_ITEMS")
-        return NumberOfEntries
+        NumberOfEntries = self.cursor.fetchone()
+        return int(NumberOfEntries)

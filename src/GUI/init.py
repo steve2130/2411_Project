@@ -380,7 +380,8 @@ def main(root):
                         rows = ProductSKUsRepo.GetRecord("*", f"WHERE PRODUCT_ID = {item[0]}")
                         Product_ID = rows[0].get("PRODUCT_ID")
 
-                        OrderItemsRepo.AddRecord(OrderItemsRepo.ReturnNumberOfEntries() + 1, order_id, item[0], Product_ID, item[2], item[3])
+                        record_number = int(OrderItemsRepo.ReturnNumberOfEntries()) + 1
+                        OrderItemsRepo.AddRecord(record_number, order_id, item[0], Product_ID, item[2], item[3])
                         OrdersRepo.Commit()
 
 
@@ -394,7 +395,7 @@ def main(root):
                         # crsr.close()
                         # conn.close()
 
-                        ProductSKUsRepo.UpdateRecord("STOCK", item[2], "PRODUCT_ID", item[0])
+                        ProductSKUsRepo.UpdateRecord("STOCK", int(item[2]), "PRODUCT_ID", int(item[0]))
                         ProductSKUsRepo.Commit()
 
 
@@ -793,8 +794,12 @@ def main(root):
                     # crsr.close()
                     # conn.close()
 
-                    ProductsRepo.AddRecord(ProductsRepo.ReturnNumberOfEntries() + 1, 0, product_name_entry.get(), product_description_entry.get(), "null", product_price_entry.get())
-                    ProductSKUsRepo.AddRecord(ProductSKUsRepo.ReturnNumberOfEntries() + 1, ProductsRepo.ReturnNumberOfEntries(), product_name_entry.get(), product_description_entry.get(), product_price_entry.get(), stock_spinbox.get())
+                    ProductsEntriesNumber = ProductsRepo.ReturnNumberOfEntries() + 1
+                    ProductSKUsEntriesNumber = ProductSKUsRepo.ReturnNumberOfEntries() + 1
+                    ProductsRepo.AddRecord(ProductsEntriesNumber, 0, product_name_entry.get(), product_description_entry.get(), "null", product_price_entry.get())
+                    
+                    ProductsEntriesNumber = ProductsRepo.ReturnNumberOfEntries()
+                    ProductSKUsRepo.AddRecord(ProductSKUsEntriesNumber, ProductsEntriesNumber, product_name_entry.get(), product_description_entry.get(), product_price_entry.get(), stock_spinbox.get())
                     ProductsRepo.Commit()
                     ProductSKUsRepo.Commit()
 

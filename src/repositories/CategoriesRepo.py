@@ -79,4 +79,5 @@ class CategoriesRepository:
 
     def ReturnNumberOfEntries(self):
         NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM CATEGORIES")
-        return NumberOfEntries
+        NumberOfEntries = self.cursor.fetchone()
+        return int(NumberOfEntries)

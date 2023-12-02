@@ -80,4 +80,5 @@ class ProductSKUsRepository:
 
     def ReturnNumberOfEntries(self):
         NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM PRODUCT_SKUS")
-        return NumberOfEntries
+        NumberOfEntries = self.cursor.fetchone()
+        return int(NumberOfEntries)

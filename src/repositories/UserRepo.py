@@ -51,4 +51,5 @@ class UserRepository:
 
     def ReturnNumberOfEntries(self):
         NumberOfEntries = self.cursor.execute("SELECT COUNT(*) FROM users")
-        return NumberOfEntries
+        NumberOfEntries = self.cursor.fetchone()
+        return int(NumberOfEntries)
